@@ -12,7 +12,9 @@ import {
   Coffee,
   BarChart2,
   UserCircle,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/app/hooks/useAuth";
 
 type ChecklistItem = {
   id: string;
@@ -42,6 +44,11 @@ const cardIn = {
 };
 
 export default function Dashboard() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-amber-50 flex items-start justify-center p-6">
       <div className="w-full max-w-3xl">
@@ -54,15 +61,30 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-semibold">Welcome, Nick</h1>
+              <h1 className="text-2xl font-semibold">
+                Welcome, {user?.username || "User"}
+              </h1>
               <p className="text-sm text-slate-500">We’re very excited to get started with you!</p>
             </div>
-            <button
-              aria-label="help"
-              className="text-sm px-3 py-2 rounded-md bg-white/60 backdrop-blur border border-white/30 shadow-sm"
-            >
-              Need help?
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                aria-label="help"
+                className="text-sm px-3 py-2 rounded-md bg-white/60 backdrop-blur border border-white/30 shadow-sm hover:bg-white/80 transition-colors"
+              >
+                Need help?
+              </button>
+              <motion.button
+                onClick={handleLogout}
+                aria-label="logout"
+                className="flex items-center gap-2 text-sm px-3 py-2 rounded-md bg-red-50 text-red-600 border border-red-200 shadow-sm hover:bg-red-100 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </motion.button>
+            </div>
           </div>
         </motion.header>
 
