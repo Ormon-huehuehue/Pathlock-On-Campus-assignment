@@ -1,42 +1,17 @@
 "use client"
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  UserCheck,
-  User,
-  CheckCircle,
-  ClipboardList,
-  MessageSquare,
-  Home,
-  BookOpen,
-  Coffee,
-  BarChart2,
-  UserCircle,
+  Plus,
+  FolderOpen,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/app/hooks/useAuth";
-
-type ChecklistItem = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  done: boolean;
-  icon?: React.ReactNode;
-};
-
-const checklistData: ChecklistItem[] = [
-  { id: "1", title: "Verify Your Identity", done: false, icon: <User /> },
-  { id: "2", title: "Finish Onboarding", done: false, icon: <ClipboardList /> },
-  { id: "3", title: "Complete Medical Intake", done: true, icon: <CheckCircle /> },
-  { id: "4", title: "Upload Your Body Compositions", done: true, icon: <UserCheck /> },
-];
-
-const careTeam = [
-  { id: "c1", name: "Carlos Ramirez", title: "Services Manager" },
-  { id: "c2", name: "Matthew Smith", title: "Lead Physician" },
-  { id: "c3", name: "Luis Martinez", title: "Care Specialist" },
-  { id: "c4", name: "Antonio Gonzalez", title: "Wellness Coordinator" },
-];
+import { useProjects } from "@/app/hooks/useProjects";
+import ProjectCard from "./ProjectCard";
+import Modal from "./ui/Modal";
+import ProjectForm from "./ui/ProjectForm";
+import { Project, ProjectFormData } from "@/app/types/projects";
 
 const cardIn = {
   hidden: { opacity: 0, y: 10 },
@@ -45,13 +20,61 @@ const cardIn = {
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const { 
+    projects, 
+    isLoading, 
+    error, 
+    hasProjects, 
+    createProject, 
+    isCreating,
+    deleteProject,
+    isDeleting 
+  } = useProjects();
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Listen for project modal events from BottomBar
+  useEffect(() => {
+    const handleOpenModal = () => {
+      setIsCreateModalOpen(true);
+    };
+
+    window.addEventListener('openProjectModal', handleOpenModal);
+    return () => {
+      window.removeEventListener('openProjectModal', handleOpenModal);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
   };
+
+  const handleCreateProject = async (projectData: ProjectFormData) => {
+    const result = await createProject(projectData);
+    if (result.success) {
+      setIsCreateModalOpen(false);
+    }
+  };
+
+  const handleViewProject = (project: Project) => {
+    // TODO: Navigate to project details view
+    console.log('View project:', project);
+  };
+
+  const handleEditProject = (project: Project) => {
+    // TODO: Open edit modal
+    console.log('Edit project:', project);
+  };
+
+  const handleDeleteProject = async (project: Project) => {
+    if (window.confirm(`Are you sure you want to delete "${project.title}"? This action cannot be undone.`)) {
+      await deleteProject(project.id);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-amber-50 flex items-start justify-center p-6">
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-4xl">
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: -12 }}
@@ -64,9 +87,25 @@ export default function Dashboard() {
               <h1 className="text-2xl font-semibold">
                 Welcome, {user?.username || "User"}
               </h1>
-              <p className="text-sm text-slate-500">We’re very excited to get started with you!</p>
+              <p className="text-sm text-slate-500">
+                {hasProjects 
+                  ? `You have ${projects.length} project${projects.length === 1 ? '' : 's'} to manage`
+                  : "Let's get started by creating your first project!"
+                }
+              </p>
             </div>
             <div className="flex items-center gap-3">
+              <motion.button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm hover:bg-emerald-100 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                disabled={isCreating}
+              >
+                <Plus className="w-4 h-4" />
+                New Project
+              </motion.button>
               <button
                 aria-label="help"
                 className="text-sm px-3 py-2 rounded-md bg-white/60 backdrop-blur border border-white/30 shadow-sm hover:bg-white/80 transition-colors"
@@ -88,113 +127,102 @@ export default function Dashboard() {
           </div>
         </motion.header>
 
-        {/* Onboarding Card */}
+        {/* Projects Section */}
         <motion.section
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="rounded-2xl bg-gradient-to-br from-emerald-50/80 to-emerald-100/70 p-6 shadow-lg border border-white/30"
         >
-          <h2 className="font-semibold text-lg mb-3">Finish Onboarding</h2>
-          <p className="text-sm text-slate-600 mb-4">Please ensure the following items are complete so that your Measured clinician can start your virtual visit:</p>
-
-          <div className="space-y-3">
-            <AnimatePresence>
-              {checklistData.map((it, i) => (
-                <motion.button
-                  key={it.id}
-                  initial="hidden"
-                  animate="show"
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  variants={cardIn}
-                  custom={i}
-                  whileHover={{ scale: 1.01 }}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl bg-white/80 border border-white/40 shadow-sm hover:shadow-md transition focus:outline-none`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-md grid place-items-center ${it.done ? 'bg-emerald-100' : 'bg-white'}`}>
-                      <span className="text-slate-700">{it.icon}</span>
-                    </div>
-                    <div className="text-left">
-                      <div className={`font-medium ${it.done ? 'text-slate-800' : 'text-slate-700'}`}>{it.title}</div>
-                      {it.subtitle && <div className="text-xs text-slate-500">{it.subtitle}</div>}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                  <motion.div
-                    initial={{ scale: it.done ? 1 : 0.9, opacity: it.done ? 1 : 0.7 }}
-                    animate={{ scale: it.done ? 1.03 : 1, rotate: it.done ? [0, -6, 0] : 0 }}
-                    transition={{ type: "tween", duration: 0.4, ease: "easeInOut" }}
-                    >
-
-                      {it.done ? (
-                        <CheckCircle className="w-6 h-6 text-emerald-500" />
-                      ) : (
-                        <div className="w-6 h-6 rounded-full border border-slate-300" />
-                      )}
-                    </motion.div>
-
-                    <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </motion.button>
-              ))}
-            </AnimatePresence>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-lg">Your Projects</h2>
+            {hasProjects && (
+              <span className="text-sm text-slate-600">
+                {projects.length} project{projects.length === 1 ? '' : 's'}
+              </span>
+            )}
           </div>
-        </motion.section>
 
-        {/* Care Team */}
-        <motion.section className="mt-6 rounded-2xl bg-white p-5 shadow-md border border-white/30">
-          <motion.h3 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="font-semibold mb-3">Your Care Team</motion.h3>
-          <p className="text-sm text-slate-500 mb-4">Feel free to chat and ask questions with our experts</p>
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+              <span className="ml-3 text-slate-600">Loading projects...</span>
+            </div>
+          )}
 
-          <div className="grid grid-cols-2 gap-3">
-            {careTeam.map((c, i) => (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.06 * i }}
-                className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-white/40"
+          {/* Error State */}
+          {error && !isLoading && (
+            <div className="text-center py-12">
+              <div className="text-red-600 mb-2">Failed to load projects</div>
+              <p className="text-sm text-slate-600">{error}</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && !hasProjects && (
+            <div className="text-center py-12">
+              <FolderOpen className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-700 mb-2">No projects yet</h3>
+              <p className="text-sm text-slate-600 mb-6">
+                Create your first project to start organizing your work and tasks.
+              </p>
+              <motion.button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                disabled={isCreating}
               >
-                <div className="w-12 h-12 rounded-full bg-white grid place-items-center text-slate-700 shadow-sm">{c.name.split(" ")[0][0]}</div>
-                <div className="flex-1">
-                  <div className="font-medium">{c.name}</div>
-                  <div className="text-xs text-slate-500">{c.title}</div>
-                </div>
-                <button className="w-9 h-9 rounded-full bg-white shadow-sm grid place-items-center border border-white/40">
-                  <MessageSquare className="w-4 h-4" />
-                </button>
-              </motion.div>
-            ))}
-          </div>
+                <Plus className="w-5 h-5" />
+                Create Your First Project
+              </motion.button>
+            </div>
+          )}
+
+          {/* Projects Grid */}
+          {!isLoading && !error && hasProjects && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <AnimatePresence>
+                {projects.map((project, i) => (
+                  <motion.div
+                    key={project.id}
+                    initial="hidden"
+                    animate="show"
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    variants={cardIn}
+                    custom={i}
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  >
+                    <ProjectCard
+                      project={project}
+                      onView={handleViewProject}
+                      onEdit={handleEditProject}
+                      onDelete={handleDeleteProject}
+                      className="h-full"
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
         </motion.section>
 
-        {/* Bottom Nav Mock */}
-        <motion.nav initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mt-6">
-          <div className="rounded-2xl bg-white p-3 shadow-lg border border-white/40 flex justify-between items-center">
-            <NavItem icon={<Home />} label="Home" active />
-            <NavItem icon={<MessageSquare />} label="Chat" />
-            <NavItem icon={<BookOpen />} label="Learn" />
-            <NavItem icon={<Coffee />} label="Food" />
-            <NavItem icon={<BarChart2 />} label="Progress" />
-            <NavItem icon={<UserCircle />} label="Profile" />
-          </div>
-        </motion.nav>
+        {/* Project Creation Modal */}
+        <Modal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          title="Create New Project"
+        >
+          <ProjectForm
+            onSubmit={handleCreateProject}
+            onCancel={() => setIsCreateModalOpen(false)}
+            isLoading={isCreating}
+          />
+        </Modal>
       </div>
     </div>
-  );
-}
-
-function NavItem({ icon, label, active = false }: { icon: React.ReactNode; label: string; active?: boolean }) {
-  return (
-    <button className={`flex flex-col items-center gap-1 text-xs px-3 py-2 rounded-md ${active ? 'text-emerald-600' : 'text-slate-500'}`}>
-      <motion.div whileTap={{ scale: 0.92 }} whileHover={{ y: -3 }} className="p-1">
-        {icon}
-      </motion.div>
-      <div className="text-[10px]">{label}</div>
-    </button>
   );
 }

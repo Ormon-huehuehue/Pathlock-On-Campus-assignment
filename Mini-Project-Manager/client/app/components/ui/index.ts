@@ -7,3 +7,5 @@ export { default as ToastProvider, useToast } from './ToastProvider';
 export { default as PageTransition } from './PageTransition';
 export { default as SuccessAnimation } from './SuccessAnimation';
 export { default as GlobalLoader } from './GlobalLoader';
+export { default as Modal } from './Modal';
+export { default as ProjectForm } from './ProjectForm';

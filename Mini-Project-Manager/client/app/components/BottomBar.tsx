@@ -1,12 +1,20 @@
-import React, { useState } from 'react'
-import { HomeIcon, LinkIcon, BellIcon, PlusIcon } from 'lucide-react'
-import { Button } from '@heroui/react'
-import { Link, useLocation } from 'react-router-dom'
+import React from 'react'
+import { HomeIcon, CalendarIcon, PlusIcon } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import BounceButton from './BounceButton'
 
-const NavItem = ({ href, icon, label, activeColor, pillColor, isActive }) => (
-  <Link to={href} className='relative'>
+interface NavItemProps {
+  icon: React.ReactNode;
+  label: string;
+  activeColor: string;
+  pillColor: string;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+const NavItem = ({ icon, label, activeColor, pillColor, isActive, onClick }: NavItemProps) => (
+  <button onClick={onClick} className='relative'>
     <motion.div
       animate={{
         scale: isActive ? 1 : 0.95,
@@ -27,39 +35,46 @@ const NavItem = ({ href, icon, label, activeColor, pillColor, isActive }) => (
         </p>
       </div>
     </motion.div>
-  </Link>
+  </button>
 )
 
-const NAVIGATION_ITEMS = [
+interface NavigationItem {
+  label: string;
+  icon: React.ReactNode;
+  href: string;
+  activeColor: string;
+  pillColor: string;
+}
+
+const NAVIGATION_ITEMS: NavigationItem[] = [
   {
-    label: 'Home',
+    label: 'Projects',
     icon: <HomeIcon className='w-5 h-5' />,
     href: '/',
     activeColor: 'text-primary-600',
     pillColor: 'bg-primary-100'
   },
   {
-    label: 'Links',
-    icon: <LinkIcon className='w-5 h-5' />,
-    href: '/links',
+    label: 'Smart Scheduler',
+    icon: <CalendarIcon className='w-5 h-5' />,
+    href: '/scheduler',
     activeColor: 'text-secondary-600',
     pillColor: 'bg-secondary-50'
   },
-  // {
-  //   label: 'Alerts',
-  //   icon: <BellIcon className='w-5 h-5' />,
-  //   href: '/alerts',
-  //   activeColor: 'text-warning-600',
-  //   pillColor: 'bg-warning-50'
-  // },
 ]
 
-export default function BottomBar({
-  isCreateLinkModalOpen,
-  setIsCreateLinkModalOpen
-}) {
-  const location = useLocation()
-  const shouldShow = ['/', '/links', '/alerts'].includes(location.pathname)
+interface BottomBarProps {
+  onCreateProject?: () => void;
+}
+
+export default function BottomBar({ onCreateProject }: BottomBarProps) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const shouldShow = ['/', '/scheduler'].includes(pathname)
+
+  const handleNavigation = (href: string) => {
+    router.push(href)
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -81,15 +96,22 @@ export default function BottomBar({
                 {NAVIGATION_ITEMS.map((item) => (
                   <NavItem
                     key={item.label}
-                    {...item}
-                    isActive={location.pathname === item.href}
+                    icon={item.icon}
+                    label={item.label}
+                    activeColor={item.activeColor}
+                    pillColor={item.pillColor}
+                    isActive={pathname === item.href}
+                    onClick={() => handleNavigation(item.href)}
                   />
                 ))}
 
                 <BounceButton
                   className="bg-[#333333] text-white font-semibold tracking-tight px-6 shadow-lg hover:shadow-xl transition-shadow"
                   startContent={<PlusIcon className="w-5 h-5" />}
-                  onPress={() => setIsCreateLinkModalOpen(true)}
+                  onPress={onCreateProject || (() => {
+                    // Dispatch a custom event that the Dashboard can listen to
+                    window.dispatchEvent(new CustomEvent('openProjectModal'));
+                  })}
                 >
                   Add Project
                 </BounceButton>

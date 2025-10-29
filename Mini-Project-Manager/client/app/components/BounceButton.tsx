@@ -1,6 +1,19 @@
-import React from 'react'
-import { Button } from '@heroui/react'
+import { Button, ButtonProps } from '@heroui/react'
 import { motion } from 'framer-motion'
+import { ReactNode } from 'react'
+
+interface BounceButtonProps extends Omit<ButtonProps, 'children'> {
+  children: ReactNode;
+  className?: string;
+  size?: "sm" | "md" | "lg";
+  radius?: "none" | "sm" | "md" | "lg" | "full";
+  variant?: "solid" | "bordered" | "light" | "flat" | "faded" | "shadow" | "ghost";
+  startContent?: ReactNode;
+  endContent?: ReactNode;
+  isDisabled?: boolean;
+  isLoading?: boolean;
+  onPress?: () => void;
+}
 
 export default function BounceButton({ 
   children,
@@ -14,7 +27,7 @@ export default function BounceButton({
   isLoading,
   onPress,
   ...props 
-}) {
+}: BounceButtonProps) {
   return (
     <motion.div
       whileHover={{ 
