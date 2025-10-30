@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Project } from '../types/projects';
 
 interface ProjectCardProps {
@@ -11,41 +11,41 @@ interface ProjectCardProps {
   className?: string;
 }
 
-export default function ProjectCard({ 
+const ProjectCard = memo(({ 
   project, 
   onView, 
   onEdit, 
   onDelete, 
   className = '' 
-}: ProjectCardProps) {
-  const formatDate = (dateString: string) => {
+}: ProjectCardProps) => {
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
-  };
+  }, []);
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     if (onView) {
       onView(project);
     }
-  };
+  }, [onView, project]);
 
-  const handleEdit = (e: React.MouseEvent) => {
+  const handleEdit = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onEdit) {
       onEdit(project);
     }
-  };
+  }, [onEdit, project]);
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDelete) {
       onDelete(project);
     }
-  };
+  }, [onDelete, project]);
 
   return (
     <div
@@ -168,4 +168,8 @@ export default function ProjectCard({
       )}
     </div>
   );
-}
+})
+
+ProjectCard.displayName = 'ProjectCard';
+
+export default ProjectCard;

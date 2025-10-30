@@ -2,40 +2,47 @@
 
 import { useState, useEffect } from 'react';
 import Modal from './ui/Modal';
-import ProjectForm from './ui/ProjectForm';
-import { useProjects } from '../hooks/useProjects';
-import { Project, ProjectFormData } from '../types/projects';
+import TaskForm from './ui/TaskForm';
+import { Task } from '../types/projects';
 
-// Interface for ProjectModal state preservation
-interface ProjectModalState {
-  formData: {
-    title: string;
-    description: string;
-  };
+// Task form data interface
+interface TaskFormData {
+  title: string;
+  description: string;
+  estimatedHours: number;
+  dueDate: string;
+  dependencies: string[];
+}
+
+// Interface for TaskModal state preservation
+interface TaskModalState {
+  formData: TaskFormData;
   formErrors: Record<string, string>;
   submitError: string;
+  dependencyInput: string;
 }
 
-interface ProjectModalProps {
+interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  project?: Project; // For editing existing projects
+  task?: Task; // For editing existing tasks
   mode?: 'create' | 'edit';
-  onSuccess?: () => void; // Callback for successful operations
-  preservedState?: ProjectModalState | null;
-  onStateChange?: (state: ProjectModalState) => void;
+  onSuccess?: (taskData: TaskFormData) => void; // Callback for successful operations
+  preservedState?: TaskModalState | null;
+  onStateChange?: (state: TaskModalState) => void;
+  isLoading?: boolean;
 }
 
-export default function ProjectModal({ 
+export default function TaskModal({ 
   isOpen, 
   onClose, 
-  project, 
+  task, 
   mode = 'create',
   onSuccess,
   preservedState,
-  onStateChange
-}: ProjectModalProps) {
-  const { createProject, updateProject, isCreating, isUpdating } = useProjects();
+  onStateChange,
+  isLoading = false
+}: TaskModalProps) {
   const [submitError, setSubmitError] = useState<string>(preservedState?.submitError || '');
 
   // Clear submit error when modal opens/closes
@@ -48,29 +55,19 @@ export default function ProjectModal({
   // Clear submit error when switching between create/edit modes
   useEffect(() => {
     setSubmitError('');
-  }, [mode, project]);
+  }, [mode, task]);
 
-  const handleSubmit = async (formData: ProjectFormData) => {
+  const handleSubmit = async (formData: TaskFormData) => {
     try {
       setSubmitError('');
       
-      let result;
-      if (mode === 'edit' && project) {
-        result = await updateProject(project.id, formData);
-      } else {
-        result = await createProject(formData);
+      // For now, we'll just call the success callback with the form data
+      // In a real implementation, this would make an API call to add/update the task
+      if (onSuccess) {
+        onSuccess(formData);
       }
-
-      if (result.success) {
-        onClose();
-        if (onSuccess) {
-          onSuccess();
-        }
-      } else {
-        // Error is already handled by the hook and displayed via toast
-        // But we can also set a local error for the modal
-        setSubmitError(result.error || 'An unexpected error occurred');
-      }
+      
+      onClose();
     } catch (error) {
       const errorMessage = error instanceof Error 
         ? error.message 
@@ -84,8 +81,7 @@ export default function ProjectModal({
     onClose();
   };
 
-  const isLoading = isCreating || isUpdating;
-  const modalTitle = mode === 'edit' ? 'Edit Project' : 'Create New Project';
+  const modalTitle = mode === 'edit' ? 'Edit Task' : 'Add New Task';
 
   return (
     <Modal
@@ -102,8 +98,8 @@ export default function ProjectModal({
           </div>
         )}
 
-        <ProjectForm
-          project={project}
+        <TaskForm
+          task={task}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isLoading={isLoading}

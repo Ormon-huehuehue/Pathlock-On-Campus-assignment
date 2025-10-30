@@ -3,6 +3,7 @@ import {
   Project,
   ProjectResponse,
   ProjectFormData,
+  Task,
   SchedulerTaskInput,
   ScheduleResponse,
   ApiError
@@ -86,6 +87,37 @@ export class ProjectService {
       await api.delete(`/api/projects/${projectId}`);
     } catch (error: any) {
       throw this.handleApiError(error, `Failed to delete project with ID ${projectId}`);
+    }
+  }
+
+  /**
+   * Add a new task to a project
+   * @param projectId - The ID of the project to add the task to
+   * @param taskData - The task data to create
+   * @returns Promise<Task> - The created task
+   * @throws ApiError - When task creation fails
+   */
+  static async addTask(projectId: number, taskData: {
+    title: string;
+    description?: string;
+    estimatedHours: number;
+    dueDate?: string;
+    dependencies: string[];
+  }): Promise<Task> {
+    try {
+      const response = await api.post<Task>(
+        `/api/projects/${projectId}/tasks`,
+        {
+          title: taskData.title,
+          dueDate: taskData.dueDate || null,
+          isCompleted: false,
+          // Note: The .NET API doesn't seem to handle description, estimatedHours, or dependencies
+          // You may need to update your backend to support these fields
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw this.handleApiError(error, `Failed to add task to project ${projectId}`);
     }
   }
 
@@ -211,6 +243,7 @@ export const {
   createProject,
   updateProject,
   deleteProject,
+  addTask,
   generateSchedule,
   isValidationError,
   isNetworkError,

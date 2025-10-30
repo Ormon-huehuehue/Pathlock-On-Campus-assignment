@@ -1,7 +1,8 @@
-import React from 'react'
-import { HomeIcon, CalendarIcon, PlusIcon } from 'lucide-react'
+import React, { memo, useCallback } from 'react'
+import { HomeIcon, CalendarIcon, PlusIcon, ListTodo, Brain } from 'lucide-react'
 import { motion } from 'framer-motion'
 import BounceButton from './BounceButton'
+import { usePathname } from 'next/navigation'
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -12,7 +13,7 @@ interface NavItemProps {
   onClick: () => void;
 }
 
-const NavItem = ({ icon, label, activeColor, pillColor, isActive, onClick }: NavItemProps) => (
+const NavItem = memo(({ icon, label, activeColor, pillColor, isActive, onClick }: NavItemProps) => (
   <button onClick={onClick} className='relative'>
     <motion.div
       animate={{
@@ -23,6 +24,9 @@ const NavItem = ({ icon, label, activeColor, pillColor, isActive, onClick }: Nav
         type: "spring",
         stiffness: 400,
         damping: 15,
+      }}
+      style={{
+        willChange: 'transform, opacity'
       }}
     >
       <div className={`flex flex-row items-center gap-2 px-6 py-2 rounded-full ${isActive ? pillColor : ''}`}>
@@ -35,7 +39,7 @@ const NavItem = ({ icon, label, activeColor, pillColor, isActive, onClick }: Nav
       </div>
     </motion.div>
   </button>
-)
+))
 
 interface NavigationItem {
   label: string;
@@ -45,7 +49,10 @@ interface NavigationItem {
   pillColor: string;
 }
 
-const NAVIGATION_ITEMS: NavigationItem[] = [
+type TabType = 'projects' | 'scheduler' | 'tasks';
+
+// Navigation items for home page
+const HOME_NAVIGATION_ITEMS: NavigationItem[] = [
   {
     label: 'Projects',
     icon: <HomeIcon className='w-5 h-5' />,
@@ -53,27 +60,46 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
     activeColor: 'text-darkBlue',
     pillColor: 'bg-lightBlue'
   },
-  {
-    label: 'Smart Scheduler',
-    icon: <CalendarIcon className='w-5 h-5' />,
-    tab: 'scheduler',
-    activeColor: 'text-darkBlue',
-    pillColor: 'bg-lightBlue'
-  },
 ]
 
-type TabType = 'projects' | 'scheduler';
+// Navigation items for project details page
+const PROJECT_NAVIGATION_ITEMS: NavigationItem[] = [
+  {
+    label: 'Task Details',
+    icon: <ListTodo className='w-5 h-5' />,
+    tab: 'tasks',
+    activeColor: 'text-emerald-700',
+    pillColor: 'bg-emerald-100'
+  },
+  {
+    label: 'Smart Scheduler',
+    icon: <Brain className='w-5 h-5' />,
+    tab: 'scheduler',
+    activeColor: 'text-emerald-700',
+    pillColor: 'bg-emerald-100'
+  },
+]
 
 interface BottomBarProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
-  onCreateProject: () => void;
+  onCreateProject?: () => void;
 }
 
-export default function BottomBar({ activeTab, onTabChange, onCreateProject }: BottomBarProps) {
-  const handleTabChange = (tab: TabType) => {
+const BottomBar = memo(({ activeTab, onTabChange, onCreateProject }: BottomBarProps) => {
+  const pathname = usePathname();
+  const isProjectDetailsPage = pathname?.startsWith('/projects/') && pathname !== '/projects';
+  const isHomePage = pathname === '/';
+  
+  const handleTabChange = useCallback((tab: TabType) => {
     onTabChange(tab);
-  }
+  }, [onTabChange]);
+
+  // Determine which navigation items to show based on current page
+  const navigationItems = isProjectDetailsPage ? PROJECT_NAVIGATION_ITEMS : HOME_NAVIGATION_ITEMS;
+  
+  // Only show Add Project button on home page
+  const showAddProjectButton = isHomePage && onCreateProject;
 
   return (
     <motion.div 
@@ -90,7 +116,7 @@ export default function BottomBar({ activeTab, onTabChange, onCreateProject }: B
       <div className='container w-fit mx-auto'>
         <div className='mx-2 mb-4'>
           <div className='bg-white shadow-lg rounded-full p-1 flex items-center justify-between gap-2'>
-            {NAVIGATION_ITEMS.map((item) => (
+            {navigationItems.map((item) => (
               <NavItem
                 key={item.label}
                 icon={item.icon}
@@ -102,16 +128,22 @@ export default function BottomBar({ activeTab, onTabChange, onCreateProject }: B
               />
             ))}
 
-            <BounceButton
-              className="bg-[#333333] text-white font-semibold tracking-tight px-6 shadow-lg hover:shadow-xl transition-shadow"
-              startContent={<PlusIcon className="w-5 h-5" />}
-              onPress={onCreateProject}
-            >
-              Add Project
-            </BounceButton>
+            {showAddProjectButton && (
+              <BounceButton
+                className="bg-[#333333] text-white font-semibold tracking-tight px-6 shadow-lg hover:shadow-xl transition-shadow"
+                startContent={<PlusIcon className="w-5 h-5" />}
+                onPress={onCreateProject}
+              >
+                Add Project
+              </BounceButton>
+            )}
           </div>
         </div>
       </div>
     </motion.div>
   )
-}
+})
+
+BottomBar.displayName = 'BottomBar';
+
+export default BottomBar;

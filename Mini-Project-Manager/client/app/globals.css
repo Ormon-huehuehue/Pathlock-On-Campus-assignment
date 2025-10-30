@@ -21,6 +21,18 @@
   --color-darkBlue: oklch(54.558% 0.16805 252.971);
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+
 @media (prefers-color-scheme: dark) {
   :root {
     --lightGreen: #d5ff34;
@@ -197,6 +209,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+
 
 /* GPU acceleration for transforms */
 [data-framer-motion] {

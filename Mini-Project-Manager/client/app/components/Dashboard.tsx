@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import { memo, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,18 +18,27 @@ const cardIn = {
 interface DashboardProps {
   onProjectEdit?: (project: Project) => void;
   onCreateProject?: () => void;
+  refreshTrigger?: number;
 }
 
-export default function Dashboard({ onProjectEdit, onCreateProject }: DashboardProps) {
+const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: DashboardProps) => {
   const router = useRouter();
-  const { 
-    projects, 
-    isLoading, 
-    error, 
-    hasProjects, 
+  const {
+    projects,
+    isLoading,
+    error,
+    hasProjects,
     deleteProject,
-    isDeleting 
+    refreshProjects
   } = useProjects();
+
+  // Refresh projects when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0) {
+      console.log('Dashboard: Refreshing projects due to trigger change');
+      refreshProjects();
+    }
+  }, [refreshTrigger, refreshProjects]);
 
   // Listen for project modal events from BottomBar (fallback for standalone usage)
   useEffect(() => {
@@ -45,21 +54,21 @@ export default function Dashboard({ onProjectEdit, onCreateProject }: DashboardP
     };
   }, [onCreateProject]);
 
-  const handleViewProject = (project: Project) => {
+  const handleViewProject = useCallback((project: Project) => {
     router.push(`/projects/${project.id}`);
-  };
+  }, [router]);
 
-  const handleEditProject = (project: Project) => {
+  const handleEditProject = useCallback((project: Project) => {
     if (onProjectEdit) {
       onProjectEdit(project);
     }
-  };
+  }, [onProjectEdit]);
 
-  const handleDeleteProject = async (project: Project) => {
+  const handleDeleteProject = useCallback(async (project: Project) => {
     if (window.confirm(`Are you sure you want to delete "${project.title}"? This action cannot be undone.`)) {
       await deleteProject(project.id);
     }
-  };
+  }, [deleteProject]);
 
   return (
     <div className="w-full">
@@ -132,6 +141,9 @@ export default function Dashboard({ onProjectEdit, onCreateProject }: DashboardP
                     custom={i}
                     whileHover={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    style={{
+                      willChange: 'transform'
+                    }}
                   >
                     <ProjectCard
                       project={project}
@@ -149,4 +161,8 @@ export default function Dashboard({ onProjectEdit, onCreateProject }: DashboardP
       </div>
     </div>
   );
-}
+})
+
+Dashboard.displayName = 'Dashboard';
+
+export default Dashboard;

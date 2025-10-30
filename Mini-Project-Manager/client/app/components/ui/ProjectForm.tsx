@@ -10,12 +10,26 @@ interface ProjectFormData {
   description: string;
 }
 
+// Interface for ProjectForm state preservation
+interface ProjectFormState {
+  formData: {
+    title: string;
+    description: string;
+  };
+  formErrors: Record<string, string>;
+  submitError: string;
+}
+
 interface ProjectFormProps {
   project?: Project;
   onSubmit: (data: ProjectFormData) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   className?: string;
+  preservedState?: ProjectFormState | null;
+  onStateChange?: (state: ProjectFormState) => void;
+  submitError?: string;
+  onSubmitErrorChange?: (error: string) => void;
 }
 
 export default function ProjectForm({ 
@@ -23,25 +37,58 @@ export default function ProjectForm({
   onSubmit, 
   onCancel, 
   isLoading = false,
-  className = '' 
+  className = '',
+  preservedState,
+  onStateChange,
+  submitError: externalSubmitError = '',
+  onSubmitErrorChange
 }: ProjectFormProps) {
-  const [formData, setFormData] = useState<ProjectFormData>({
-    title: project?.title || '',
-    description: project?.description || ''
+  // Initialize form data from preserved state or project/defaults
+  const [formData, setFormData] = useState<ProjectFormData>(() => {
+    if (preservedState?.formData) {
+      return preservedState.formData;
+    }
+    return {
+      title: project?.title || '',
+      description: project?.description || ''
+    };
   });
   
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitError, setSubmitError] = useState<string>('');
+  const [errors, setErrors] = useState<Record<string, string>>(
+    preservedState?.formErrors || {}
+  );
+  const [submitError, setSubmitError] = useState<string>(
+    preservedState?.submitError || externalSubmitError
+  );
 
-  // Update form data when project prop changes
+  // Update form data when project prop changes (only if no preserved state)
   useEffect(() => {
-    if (project) {
+    if (project && !preservedState?.formData) {
       setFormData({
         title: project.title,
         description: project.description || ''
       });
     }
-  }, [project]);
+  }, [project, preservedState]);
+
+  // Sync external submit error
+  useEffect(() => {
+    if (externalSubmitError !== submitError) {
+      setSubmitError(externalSubmitError);
+    }
+  }, [externalSubmitError]);
+
+  // Notify parent component of state changes for preservation
+  useEffect(() => {
+    if (onStateChange) {
+      const currentState: ProjectFormState = {
+        formData,
+        formErrors: errors,
+        submitError
+      };
+      onStateChange(currentState);
+    }
+  }, [formData, errors, submitError, onStateChange]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -81,6 +128,9 @@ export default function ProjectForm({
     // Clear submit error
     if (submitError) {
       setSubmitError('');
+      if (onSubmitErrorChange) {
+        onSubmitErrorChange('');
+      }
     }
   };
 
@@ -92,16 +142,23 @@ export default function ProjectForm({
     }
 
     try {
-      setSubmitError('');
+      const errorMsg = '';
+      setSubmitError(errorMsg);
+      if (onSubmitErrorChange) {
+        onSubmitErrorChange(errorMsg);
+      }
+      
       await onSubmit({
         title: formData.title.trim(),
         description: formData.description.trim()
       });
     } catch (error) {
-      if (error instanceof Error) {
-        setSubmitError(error.message);
-      } else {
-        setSubmitError('An unexpected error occurred. Please try again.');
+      const errorMsg = error instanceof Error 
+        ? error.message 
+        : 'An unexpected error occurred. Please try again.';
+      setSubmitError(errorMsg);
+      if (onSubmitErrorChange) {
+        onSubmitErrorChange(errorMsg);
       }
     }
   };

@@ -9,3 +9,4 @@ export { default as SuccessAnimation } from './SuccessAnimation';
 export { default as GlobalLoader } from './GlobalLoader';
 export { default as Modal } from './Modal';
 export { default as ProjectForm } from './ProjectForm';
+export { default as ErrorBoundary } from './ErrorBoundary';

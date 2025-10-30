@@ -13,7 +13,7 @@ export interface Task {
   id: number;
   title: string;
   description?: string;
-  estimatedHours: number;
+  estimatedHours?: number;
   dueDate?: string;
   isCompleted: boolean;
   dependencies: string[];

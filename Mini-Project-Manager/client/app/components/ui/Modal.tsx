@@ -50,10 +50,13 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
+      // Prevent scrolling on background
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
@@ -106,8 +109,8 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
   const modalVariants = {
     hidden: { 
       opacity: 0,
-      scale: 0.98,
-      y: 8
+      scale: 0.96,
+      y: 12
     },
     visible: { 
       opacity: 1,
@@ -116,8 +119,8 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
     },
     exit: { 
       opacity: 0,
-      scale: 0.98,
-      y: 8
+      scale: 0.96,
+      y: 12
     }
   };
 
@@ -140,12 +143,13 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
           }}
           style={{
             backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)'
+            WebkitBackdropFilter: 'blur(8px)',
+            willChange: 'opacity'
           }}
         >
           <motion.div
             ref={modalRef}
-            className={`modal-content relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-lightBlue/30 ${className}`}
+            className={`modal-content relative w-full max-w-md bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-300 ${className}`}
             tabIndex={-1}
             onKeyDown={handleKeyDown}
             variants={modalVariants}
@@ -157,16 +161,19 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
               ease: [0.25, 0.46, 0.45, 0.94]
             }}
             onClick={(e) => e.stopPropagation()}
+            style={{
+              willChange: 'transform, opacity'
+            }}
           >
             {/* Header */}
             {title && (
-              <div className="flex items-center justify-between px-8 py-6 border-b border-lightBlue/50 bg-gradient-to-r from-lightBlue/30 to-lightBlue/10">
+              <div className="flex items-center justify-between px-8 py-6 border-b border-gray-300 bg-gradient-to-br from-lightBlue to-lightBlue/70 border-b-2">
                 <h2 id="modal-title" className="text-2xl font-bold text-darkBlue tracking-tight">
                   {title}
                 </h2>
                 <motion.button
                   onClick={onClose}
-                  className="p-2.5 text-darkBlue/60 hover:text-darkBlue rounded-xl hover:bg-lightBlue/50"
+                  className="p-2.5 bg-white border-2 border-gray-200 text-darkBlue/60 hover:text-darkBlue rounded-full hover:bg-lightBlue/50 transition-all"
                   aria-label="Close modal"
                   whileHover={{ 
                     scale: 1.05,
