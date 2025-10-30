@@ -382,7 +382,10 @@ export default function ProjectDetailsPage() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="font-semibold text-lg">Tasks</h2>
-                    <button className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm hover:bg-emerald-100 transition-colors">
+                    <button 
+                      onClick={handleAddTask}
+                      className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm hover:bg-emerald-100 transition-colors"
+                    >
                       <Plus className="w-4 h-4" />
                       Add Task
                     </button>
@@ -438,11 +441,7 @@ export default function ProjectDetailsPage() {
                                     </span>
                                   )}
 
-                                  {task.dependencies.length > 0 && (
-                                    <span className="text-orange-600">
-                                      {task.dependencies.length} dependencies
-                                    </span>
-                                  )}
+                            
                                 </div>
                               </div>
                             </div>
@@ -457,7 +456,10 @@ export default function ProjectDetailsPage() {
                       <p className="text-sm text-gray-600 mb-6">
                         Add tasks to start organizing your project work.
                       </p>
-                      <button className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
+                      <button 
+                        onClick={handleAddTask}
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+                      >
                         <Plus className="w-5 h-5" />
                         Add Your First Task
                       </button>
@@ -556,6 +558,15 @@ export default function ProjectDetailsPage() {
               </div>
             </div>
           </Modal>
+
+          {/* Task Modal */}
+          <TaskModal
+            isOpen={isTaskModalOpen}
+            onClose={handleTaskModalClose}
+            mode="create"
+            onSuccess={handleTaskSuccess}
+            isLoading={isAddingTask}
+          />
 
           {/* Bottom Navigation */}
           <BottomBar

@@ -8,10 +8,7 @@ import { DatePicker } from '../DatePicker';
 
 interface TaskFormData {
   title: string;
-  description: string;
-  estimatedHours: number;
   dueDate: string;
-  dependencies: string[];
 }
 
 // Interface for TaskForm state preservation
@@ -34,10 +31,10 @@ interface TaskFormProps {
   onSubmitErrorChange?: (error: string) => void;
 }
 
-export default function TaskForm({ 
-  task, 
-  onSubmit, 
-  onCancel, 
+export default function TaskForm({
+  task,
+  onSubmit,
+  onCancel,
   isLoading = false,
   className = '',
   preservedState,
@@ -52,13 +49,10 @@ export default function TaskForm({
     }
     return {
       title: task?.title || '',
-      description: task?.description || '',
-      estimatedHours: task?.estimatedHours || 1,
       dueDate: task?.dueDate || '',
-      dependencies: task?.dependencies || []
     };
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>(
     preservedState?.formErrors || {}
   );
@@ -74,10 +68,7 @@ export default function TaskForm({
     if (task && !preservedState?.formData) {
       setFormData({
         title: task.title,
-        description: task.description || '',
-        estimatedHours: task.estimatedHours ? task.estimatedHours : 1,
         dueDate: task.dueDate || '',
-        dependencies: task.dependencies || []
       });
     }
   }, [task, preservedState]);
@@ -114,24 +105,19 @@ export default function TaskForm({
       newErrors.title = 'Task title must be less than 100 characters';
     }
 
-    // Description validation
-    if (formData.description.length > 500) {
-      newErrors.description = 'Description must be less than 500 characters';
-    }
-
-    // Estimated hours validation
-    if (formData.estimatedHours <= 0) {
-      newErrors.estimatedHours = 'Estimated hours must be greater than 0';
-    } else if (formData.estimatedHours > 168) {
-      newErrors.estimatedHours = 'Estimated hours cannot exceed 168 (1 week)';
-    }
+    // Estimated hours validation - disabled for now since API doesn't support it
+    // if (formData.estimatedHours <= 0) {
+    //   newErrors.estimatedHours = 'Estimated hours must be greater than 0';
+    // } else if (formData.estimatedHours > 168) {
+    //   newErrors.estimatedHours = 'Estimated hours cannot exceed 168 (1 week)';
+    // }
 
     // Due date validation
     if (formData.dueDate) {
       const dueDate = new Date(formData.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (dueDate < today) {
         newErrors.dueDate = 'Due date cannot be in the past';
       }
@@ -164,29 +150,10 @@ export default function TaskForm({
     }
   };
 
-  const handleDependencyAdd = () => {
-    if (dependencyInput.trim() && !formData.dependencies.includes(dependencyInput.trim())) {
-      const newDependencies = [...formData.dependencies, dependencyInput.trim()];
-      handleInputChange('dependencies', newDependencies);
-      setDependencyInput('');
-    }
-  };
-
-  const handleDependencyRemove = (dependency: string) => {
-    const newDependencies = formData.dependencies.filter(dep => dep !== dependency);
-    handleInputChange('dependencies', newDependencies);
-  };
-
-  const handleDependencyKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleDependencyAdd();
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -197,17 +164,14 @@ export default function TaskForm({
       if (onSubmitErrorChange) {
         onSubmitErrorChange(errorMsg);
       }
-      
+
       await onSubmit({
         title: formData.title.trim(),
-        description: formData.description.trim(),
-        estimatedHours: formData.estimatedHours,
         dueDate: formData.dueDate,
-        dependencies: formData.dependencies
       });
     } catch (error) {
-      const errorMsg = error instanceof Error 
-        ? error.message 
+      const errorMsg = error instanceof Error
+        ? error.message
         : 'An unexpected error occurred. Please try again.';
       setSubmitError(errorMsg);
       if (onSubmitErrorChange) {
@@ -223,8 +187,8 @@ export default function TaskForm({
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
+    <form
+      onSubmit={handleSubmit}
       className={`space-y-4 ${className}`}
       onKeyDown={handleKeyDown}
     >
@@ -235,8 +199,8 @@ export default function TaskForm({
 
       {/* Title Field */}
       <div>
-        <label 
-          htmlFor="task-title" 
+        <label
+          htmlFor="task-title"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
           Task Title *
@@ -246,11 +210,10 @@ export default function TaskForm({
           type="text"
           value={formData.title}
           onChange={(e) => handleInputChange('title', e.target.value)}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
-            errors.title 
-              ? 'border-red-300 bg-red-50' 
-              : 'border-gray-300 hover:border-gray-400'
-          }`}
+          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${errors.title
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300 hover:border-gray-400'
+            }`}
           placeholder="Enter task title"
           maxLength={100}
           disabled={isLoading}
@@ -267,75 +230,10 @@ export default function TaskForm({
         </p>
       </div>
 
-      {/* Description Field */}
-      <div>
-        <label 
-          htmlFor="task-description" 
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Description
-        </label>
-        <textarea
-          id="task-description"
-          value={formData.description}
-          onChange={(e) => handleInputChange('description', e.target.value)}
-          rows={3}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none ${
-            errors.description 
-              ? 'border-red-300 bg-red-50' 
-              : 'border-gray-300 hover:border-gray-400'
-          }`}
-          placeholder="Enter task description (optional)"
-          maxLength={500}
-          disabled={isLoading}
-          aria-describedby={errors.description ? 'description-error' : undefined}
-        />
-        {errors.description && (
-          <p id="description-error" className="mt-1 text-sm text-red-600">
-            {errors.description}
-          </p>
-        )}
-        <p className="mt-1 text-xs text-gray-500">
-          {formData.description.length}/500 characters
-        </p>
-      </div>
-
-      {/* Estimated Hours Field */}
-      <div>
-        <label 
-          htmlFor="estimated-hours" 
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Estimated Hours *
-        </label>
-        <input
-          id="estimated-hours"
-          type="number"
-          min="0.5"
-          max="168"
-          step="0.5"
-          value={formData.estimatedHours}
-          onChange={(e) => handleInputChange('estimatedHours', parseFloat(e.target.value) || 0)}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
-            errors.estimatedHours 
-              ? 'border-red-300 bg-red-50' 
-              : 'border-gray-300 hover:border-gray-400'
-          }`}
-          placeholder="1.0"
-          disabled={isLoading}
-          aria-describedby={errors.estimatedHours ? 'hours-error' : undefined}
-        />
-        {errors.estimatedHours && (
-          <p id="hours-error" className="mt-1 text-sm text-red-600">
-            {errors.estimatedHours}
-          </p>
-        )}
-      </div>
-
       {/* Due Date Field */}
       <div>
-        <label 
-          htmlFor="due-date" 
+        <label
+          htmlFor="due-date"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
           Due Date (Optional)
@@ -352,58 +250,6 @@ export default function TaskForm({
         )}
       </div>
 
-      {/* Dependencies Field */}
-      <div>
-        <label 
-          htmlFor="dependencies" 
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Dependencies (Optional)
-        </label>
-        <div className="flex space-x-2">
-          <input
-            id="dependencies"
-            type="text"
-            value={dependencyInput}
-            onChange={(e) => setDependencyInput(e.target.value)}
-            onKeyDown={handleDependencyKeyPress}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all hover:border-gray-400"
-            placeholder="Enter task name that must be completed first"
-            disabled={isLoading}
-          />
-          <button
-            type="button"
-            onClick={handleDependencyAdd}
-            disabled={!dependencyInput.trim() || isLoading}
-            className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Add
-          </button>
-        </div>
-        
-        {/* Dependencies List */}
-        {formData.dependencies.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {formData.dependencies.map((dep, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full"
-              >
-                {dep}
-                <button
-                  type="button"
-                  onClick={() => handleDependencyRemove(dep)}
-                  disabled={isLoading}
-                  className="ml-2 text-emerald-600 hover:text-emerald-800 disabled:opacity-50"
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Action Buttons */}
       <div className="flex items-center justify-end space-x-3 pt-4">
         <button
@@ -414,11 +260,11 @@ export default function TaskForm({
         >
           Cancel
         </button>
-        
+
         <LoadingButton
           type="submit"
           isLoading={isLoading}
-          disabled={isLoading || !formData.title.trim() || formData.estimatedHours <= 0}
+          disabled={isLoading || !formData.title.trim()}
           className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 cursor-pointer text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {task ? 'Update Task' : 'Add Task'}
