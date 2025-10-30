@@ -9,7 +9,7 @@ namespace ProjectManager.Api.Models
         public int Id { get; set; }
 
         [Required, StringLength(100, MinimumLength = 3)]
-        public string Title { get; set; }
+        public required string Title { get; set; }
 
         [StringLength(500)]
         public string? Description { get; set; }
@@ -17,8 +17,8 @@ namespace ProjectManager.Api.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public int UserId { get; set; }
-        public User User { get; set; }
+        public User? User { get; set; }
 
-        public ICollection<TaskItem> Tasks { get; set; }
+        public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     }
 }

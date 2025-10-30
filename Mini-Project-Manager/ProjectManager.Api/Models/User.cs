@@ -8,14 +8,14 @@ namespace ProjectManager.Api.Models
         public int Id { get; set; }
 
         [Required, StringLength(100)]
-        public string Username { get; set; }
+        public required string Username { get; set; }
 
         [Required]
-        public byte[] PasswordHash { get; set; }
+        public required byte[] PasswordHash { get; set; }
 
         [Required]
-        public byte[] PasswordSalt { get; set; }
+        public required byte[] PasswordSalt { get; set; }
 
-        public ICollection<Project> Projects { get; set; }
+        public ICollection<Project> Projects { get; set; } = new List<Project>();
     }
 }
