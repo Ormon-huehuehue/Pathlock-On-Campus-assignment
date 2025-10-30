@@ -69,7 +69,7 @@ const ProjectCard = memo(({
         
         {/* Action buttons */}
         <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {onEdit && (
+          {/* {onEdit && (
             <button
               onClick={handleEdit}
               className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -89,7 +89,7 @@ const ProjectCard = memo(({
                 />
               </svg>
             </button>
-          )}
+          )} */}
           
           {onDelete && (
             <button
