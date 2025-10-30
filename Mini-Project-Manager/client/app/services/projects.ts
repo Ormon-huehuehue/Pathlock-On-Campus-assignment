@@ -138,6 +138,20 @@ export class ProjectService {
   }
 
   /**
+   * Delete a task
+   * @param taskId - The ID of the task to delete
+   * @returns Promise<void> - Resolves when deletion is successful
+   * @throws ApiError - When deletion fails
+   */
+  static async deleteTask(taskId: number): Promise<void> {
+    try {
+      await api.delete(`/api/tasks/${taskId}`);
+    } catch (error: any) {
+      throw this.handleApiError(error, `Failed to delete task with ID ${taskId}`);
+    }
+  }
+
+  /**
    * Generate optimized schedule for project tasks
    * @param projectId - The ID of the project to schedule
    * @param tasks - Array of tasks to schedule
@@ -152,7 +166,7 @@ export class ProjectService {
       );
       return response.data;
     } catch (error: any) {
-      throw this.handleApiError(error, `Failed to generate schedule for project ${projectId}`);
+      throw ProjectService.handleApiError(error, `Failed to generate schedule for project ${projectId}`);
     }
   }
 
@@ -261,6 +275,7 @@ export const {
   deleteProject,
   addTask,
   updateTask,
+  deleteTask,
   generateSchedule,
   isValidationError,
   isNetworkError,

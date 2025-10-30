@@ -48,6 +48,7 @@ export default function ProjectDetailsPage() {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [updatingTasks, setUpdatingTasks] = useState<Set<number>>(new Set());
   const [taskErrors, setTaskErrors] = useState<Record<number, string>>({});
+  const [deletingTasks, setDeletingTasks] = useState<Set<number>>(new Set());
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -129,13 +130,13 @@ export default function ProjectDetailsPage() {
   }) => {
     try {
       setIsAddingTask(true);
-      
+
       // Call the API to add the task
       await ProjectService.addTask(projectId, taskData);
-      
+
       // Refresh the project data to show the new task and update statistics
       await fetchProject();
-      
+
       setIsTaskModalOpen(false);
     } catch (err: any) {
       setError(err.message || 'Failed to add task');
@@ -191,17 +192,17 @@ export default function ProjectDetailsPage() {
 
     try {
       // API call to update task - need to send all required fields for backend
-      await ProjectService.updateTask(taskId, { 
+      await ProjectService.updateTask(taskId, {
         title: task?.title || '',
-        isCompleted: newStatus 
+        isCompleted: newStatus
       });
-      
+
       // Show success feedback
       showSuccess(
         'Task Updated',
         `"${taskTitle}" marked as ${newStatus ? 'completed' : 'incomplete'}`
       );
-      
+
       // No need to refresh - optimistic UI update already handled the change
     } catch (err: any) {
       // Revert optimistic update on failure - restore original state
@@ -246,6 +247,50 @@ export default function ProjectDetailsPage() {
       if (!updatingTasks.has(taskId)) {
         debouncedTaskToggle(taskId, currentStatus);
       }
+    }
+  };
+
+  // Handle task deletion
+  const handleTaskDelete = async (taskId: number, taskTitle: string) => {
+    // Prevent multiple simultaneous deletions for the same task
+    if (deletingTasks.has(taskId)) {
+      return;
+    }
+
+    // Add task to deleting set to show loading state
+    setDeletingTasks(prev => new Set(prev).add(taskId));
+
+    try {
+      // API call to delete task
+      await ProjectService.deleteTask(taskId);
+
+      // Show success feedback
+      showSuccess(
+        'Task Deleted',
+        `"${taskTitle}" has been deleted successfully`
+      );
+
+      // Remove task from local state immediately
+      setProject(prevProject => {
+        if (!prevProject) return prevProject;
+        return {
+          ...prevProject,
+          tasks: prevProject.tasks?.filter(task => task.id !== taskId)
+        };
+      });
+    } catch (err: any) {
+      // Show error toast notification
+      showError(
+        'Delete Failed',
+        `Failed to delete "${taskTitle}": ${err.message || 'Please try again'}`
+      );
+    } finally {
+      // Always remove task from deleting set
+      setDeletingTasks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(taskId);
+        return newSet;
+      });
     }
   };
 
@@ -404,7 +449,7 @@ export default function ProjectDetailsPage() {
                 key="tasks"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
+                exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
                 {/* Project Overview */}
@@ -425,7 +470,7 @@ export default function ProjectDetailsPage() {
 
                   {/* Task Statistics */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <motion.div 
+                    <motion.div
                       className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
@@ -435,7 +480,7 @@ export default function ProjectDetailsPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Total Tasks</p>
-                          <motion.p 
+                          <motion.p
                             key={taskStats.total}
                             initial={{ scale: 1.02, color: '#3b82f6' }}
                             animate={{ scale: 1, color: '#111827' }}
@@ -448,14 +493,14 @@ export default function ProjectDetailsPage() {
                       </div>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                       className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
-                        <motion.div 
+                        <motion.div
                           className="p-2 bg-green-100 rounded-lg"
-                          animate={{ 
+                          animate={{
                             scale: taskStats.completed > 0 ? [1, 1.1, 1] : 1,
                             rotate: taskStats.completed > 0 ? [0, 5, -5, 0] : 0
                           }}
@@ -465,7 +510,7 @@ export default function ProjectDetailsPage() {
                         </motion.div>
                         <div>
                           <p className="text-sm text-gray-600">Completed</p>
-                          <motion.p 
+                          <motion.p
                             key={taskStats.completed}
                             initial={{ scale: 1.02, color: '#10b981' }}
                             animate={{ scale: 1, color: '#111827' }}
@@ -478,14 +523,14 @@ export default function ProjectDetailsPage() {
                       </div>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                       className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
-                        <motion.div 
+                        <motion.div
                           className="p-2 bg-purple-100 rounded-lg"
-                          animate={{ 
+                          animate={{
                             rotate: taskStats.progress === 100 ? 360 : 0,
                             scale: taskStats.progress === 100 ? [1, 1.2, 1] : 1
                           }}
@@ -495,7 +540,7 @@ export default function ProjectDetailsPage() {
                         </motion.div>
                         <div>
                           <p className="text-sm text-gray-600">Progress</p>
-                          <motion.p 
+                          <motion.p
                             key={Math.round(taskStats.progress)}
                             initial={{ scale: 1.02, color: '#8b5cf6' }}
                             animate={{ scale: 1, color: '#111827' }}
@@ -527,14 +572,14 @@ export default function ProjectDetailsPage() {
                         <motion.div
                           className="h-3 rounded-full relative overflow-hidden"
                           style={{
-                            background: taskStats.progress === 100 
-                              ? 'linear-gradient(90deg, #10b981, #059669)' 
+                            background: taskStats.progress === 100
+                              ? 'linear-gradient(90deg, #10b981, #059669)'
                               : 'linear-gradient(90deg, #10b981, #34d399)'
                           }}
                           initial={{ width: 0 }}
                           animate={{ width: `${taskStats.progress}%` }}
-                          transition={{ 
-                            duration: 0.8, 
+                          transition={{
+                            duration: 0.8,
                             ease: "easeInOut",
                             type: "spring",
                             stiffness: 100,
@@ -555,7 +600,7 @@ export default function ProjectDetailsPage() {
                           />
                         </motion.div>
                       </div>
-                      
+
                       {/* Progress percentage with animation */}
                       <div className="flex justify-center mt-2">
                         <motion.div
@@ -563,13 +608,12 @@ export default function ProjectDetailsPage() {
                           initial={{ scale: 0.8, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ duration: 0.4, delay: 0.2 }}
-                          className={`text-xs font-medium px-2 py-1 rounded-full ${
-                            taskStats.progress === 100 
-                              ? 'bg-green-100 text-green-800' 
-                              : taskStats.progress >= 50 
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-gray-100 text-gray-600'
-                          }`}
+                          className={`text-xs font-medium px-2 py-1 rounded-full ${taskStats.progress === 100
+                            ? 'bg-green-100 text-green-800'
+                            : taskStats.progress >= 50
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-gray-100 text-gray-600'
+                            }`}
                         >
                           {Math.round(taskStats.progress)}% Complete
                           {taskStats.progress === 100 && (
@@ -597,7 +641,7 @@ export default function ProjectDetailsPage() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="font-semibold text-lg">Tasks</h2>
-                    <button 
+                    <button
                       onClick={handleAddTask}
                       className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm hover:bg-emerald-100 transition-colors"
                     >
@@ -612,7 +656,7 @@ export default function ProjectDetailsPage() {
                         {project.tasks.map((task, index) => {
                           const isUpdating = updatingTasks.has(task.id);
                           const hasError = taskErrors[task.id];
-                          
+
                           return (
                             <motion.div
                               key={task.id}
@@ -620,13 +664,11 @@ export default function ProjectDetailsPage() {
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -10 }}
                               transition={{ delay: index * 0.05 }}
-                              className={`relative p-4 rounded-xl border transition-all cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
-                                task.isCompleted
-                                  ? 'bg-green-50 border-green-200 hover:bg-green-100'
-                                  : 'bg-gray-50 border-gray-200 hover:border-gray-300 hover:bg-gray-100'
-                              } ${hasError ? 'ring-2 ring-red-200 border-red-300' : ''} ${
-                                isUpdating ? 'opacity-75 pointer-events-none' : ''
-                              }`}
+                              className={`relative p-4 rounded-xl border transition-all cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${task.isCompleted
+                                ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                                : 'bg-gray-50 border-gray-200 hover:border-gray-300 hover:bg-gray-100'
+                                } ${hasError ? 'ring-2 ring-red-200 border-red-300' : ''} ${isUpdating ? 'opacity-75 pointer-events-none' : ''
+                                }`}
                               onClick={() => !isUpdating && debouncedTaskToggle(task.id, task.isCompleted)}
                               onKeyDown={(e) => handleTaskKeyDown(e, task.id, task.isCompleted)}
                               tabIndex={0}
@@ -635,7 +677,7 @@ export default function ProjectDetailsPage() {
                               aria-pressed={task.isCompleted}
                               aria-busy={isUpdating}
                               aria-describedby={hasError ? `task-error-${task.id}` : undefined}
-                              whileHover={{ scale: 1.01 }}
+                           
                               whileTap={{ scale: 0.99 }}
                             >
                               {/* Loading overlay */}
@@ -658,17 +700,17 @@ export default function ProjectDetailsPage() {
                               )}
 
                               <div className="flex items-start gap-3">
-                                <motion.div 
+                                <motion.div
                                   className="mt-1"
-                                  animate={{ 
+                                  animate={{
                                     scale: task.isCompleted ? 1.1 : 1,
-                                    rotate: task.isCompleted ? 360 : 0 
+                                    rotate: task.isCompleted ? 360 : 0
                                   }}
-                                  transition={{ 
-                                    type: "spring", 
-                                    stiffness: 300, 
+                                  transition={{
+                                    type: "spring",
+                                    stiffness: 300,
                                     damping: 20,
-                                    duration: 0.5 
+                                    duration: 0.5
                                   }}
                                 >
                                   {task.isCompleted ? (
@@ -691,11 +733,10 @@ export default function ProjectDetailsPage() {
                                 </motion.div>
 
                                 <div className="flex-1">
-                                  <motion.h3 
-                                    className={`font-medium transition-all duration-300 ${
-                                      task.isCompleted ? 'text-green-800 line-through' : 'text-gray-900'
-                                    }`}
-                                    animate={{ 
+                                  <motion.h3
+                                    className={`font-medium transition-all duration-300 ${task.isCompleted ? 'text-green-800 line-through' : 'text-gray-900'
+                                      }`}
+                                    animate={{
                                       opacity: task.isCompleted ? 0.8 : 1,
                                       x: isUpdating ? [0, 2, 0] : 0
                                     }}
@@ -708,12 +749,11 @@ export default function ProjectDetailsPage() {
                                   </motion.h3>
 
                                   {task.description && (
-                                    <motion.p 
-                                      className={`text-sm mt-1 transition-all duration-300 ${
-                                        task.isCompleted ? 'text-green-600 line-through' : 'text-gray-600'
-                                      }`}
-                                      animate={{ 
-                                        opacity: task.isCompleted ? 0.7 : 1 
+                                    <motion.p
+                                      className={`text-sm mt-1 transition-all duration-300 ${task.isCompleted ? 'text-green-600 line-through' : 'text-gray-600'
+                                        }`}
+                                      animate={{
+                                        opacity: task.isCompleted ? 0.7 : 1
                                       }}
                                     >
                                       {task.description}
@@ -749,6 +789,28 @@ export default function ProjectDetailsPage() {
                                     </motion.div>
                                   )}
                                 </div>
+
+                                {/* Delete Button */}
+                             
+                                  <motion.button
+                                    onClick={(e) => {
+                                      e.stopPropagation(); // Prevent task toggle when clicking delete
+                                      handleTaskDelete(task.id, task.title);
+                                    }}
+                                    disabled={deletingTasks.has(task.id) || isUpdating}
+                                    className={`flex justify-center items-center p-2 rounded-lg transition-all duration-200 ${deletingTasks.has(task.id)
+                                      ? 'bg-red-100 text-red-400 cursor-not-allowed '
+                                      : 'text-gray-400 hover:text-red-500 hover:bg-red-200 hover:border-2 hover:border-red-200'
+                                      }`}
+                                    aria-label={`Delete task: ${task.title}`}
+                                  >
+                                    {deletingTasks.has(task.id) ? (
+                                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-red-400 border-t-transparent"></div>
+                                    ) : (
+                                      <Trash2 className="w-6 h-6" />
+                                    )}
+                                  </motion.button>
+                               
                               </div>
                             </motion.div>
                           );
@@ -762,7 +824,7 @@ export default function ProjectDetailsPage() {
                       <p className="text-sm text-gray-600 mb-6">
                         Add tasks to start organizing your project work.
                       </p>
-                      <button 
+                      <button
                         onClick={handleAddTask}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
                       >
@@ -778,7 +840,7 @@ export default function ProjectDetailsPage() {
                 key="scheduler"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
                 className="rounded-2xl bg-white/80 backdrop-blur p-6 shadow-lg border border-white/30"
               >
@@ -876,9 +938,9 @@ export default function ProjectDetailsPage() {
 
           {/* Bottom Navigation */}
           <div className='hidden sm:block'>
-          <BottomBar
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
+            <BottomBar
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
             />
           </div>
         </div>

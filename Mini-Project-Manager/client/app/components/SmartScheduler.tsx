@@ -216,6 +216,8 @@ const SmartScheduler = memo(({
 
     try {
       const scheduleResponse = await generateSchedule(projectId, tasks);
+
+      console.log("generate schedule response : ", scheduleResponse)
       
       // Check if request was aborted
       if (abortControllerRef.current?.signal.aborted) {
@@ -426,7 +428,7 @@ const SmartScheduler = memo(({
                 <p className="text-sm text-gray-600">Add tasks using the form to get started with your schedule</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 {tasks.map((task, index) => (
                   <div
                     key={index}
@@ -446,7 +448,7 @@ const SmartScheduler = memo(({
                       </div>
                       <button
                         onClick={() => handleRemoveTask(index)}
-                        className="flex-shrink-0 ml-3 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                        className="flex items-center justify-center ml-3 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
                         aria-label="Remove task"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
