@@ -202,8 +202,7 @@ export default function ProjectDetailsPage() {
         `"${taskTitle}" marked as ${newStatus ? 'completed' : 'incomplete'}`
       );
       
-      // Refresh project data to ensure consistency with server state and update statistics
-      await fetchProject();
+      // No need to refresh - optimistic UI update already handled the change
     } catch (err: any) {
       // Revert optimistic update on failure - restore original state
       setProject(prevProject => {
