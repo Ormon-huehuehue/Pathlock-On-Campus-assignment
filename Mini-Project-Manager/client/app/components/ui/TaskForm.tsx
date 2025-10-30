@@ -261,7 +261,7 @@ export default function TaskForm({
       </div>
 
       {/* Description Field */}
-      <div>
+      <div className = 'hidden'>
         <label
           htmlFor="task-description"
           className="block text-sm font-medium text-gray-700 mb-2"
@@ -327,7 +327,7 @@ export default function TaskForm({
       </div>
 
       {/* Dependencies Field */}
-      <div>
+      <div className='hidden'>
         <label
           htmlFor="dependencies"
           className="block text-sm font-medium text-gray-700 mb-2"

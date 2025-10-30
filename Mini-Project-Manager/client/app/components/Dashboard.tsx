@@ -1,5 +1,5 @@
 "use client"
-import { memo, useEffect, useCallback } from "react";
+import { memo, useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useProjects } from "@/app/hooks/useProjects";
 import ProjectCard from "./ProjectCard";
+import DeleteProjectModal from "./ui/DeleteProjectModal";
 import { Project } from "@/app/types/projects";
 
 const cardIn = {
@@ -31,6 +32,11 @@ const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: Dash
     deleteProject,
     refreshProjects
   } = useProjects();
+
+  // Delete modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Refresh projects when refreshTrigger changes
   useEffect(() => {
@@ -64,11 +70,32 @@ const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: Dash
     }
   }, [onProjectEdit]);
 
-  const handleDeleteProject = useCallback(async (project: Project) => {
-    if (window.confirm(`Are you sure you want to delete "${project.title}"? This action cannot be undone.`)) {
-      await deleteProject(project.id);
+  const handleDeleteProject = useCallback((project: Project) => {
+    setProjectToDelete(project);
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!projectToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteProject(projectToDelete.id);
+      setIsDeleteModalOpen(false);
+      setProjectToDelete(null);
+    } catch (error) {
+      // Error handling is done in the useProjects hook
+      console.error('Failed to delete project:', error);
+    } finally {
+      setIsDeleting(false);
     }
-  }, [deleteProject]);
+  }, [projectToDelete, deleteProject]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setIsDeleteModalOpen(false);
+    setProjectToDelete(null);
+    setIsDeleting(false);
+  }, []);
 
   return (
     <div className="w-full">
@@ -157,6 +184,15 @@ const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: Dash
             </div>
           )}
         </motion.section>
+
+        {/* Delete Project Modal */}
+        <DeleteProjectModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleDeleteCancel}
+          project={projectToDelete}
+          onConfirm={handleDeleteConfirm}
+          isDeleting={isDeleting}
+        />
       </div>
     </div>
   );

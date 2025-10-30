@@ -129,15 +129,15 @@ export default function UnifiedDashboard() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="p-6 pb-0"
+        className="pt-6 pb-0"
       >
         <div className="w-full max-w-4xl mx-auto">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center mt-5 justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-zinc-800">
+              <h1 className="text-5xl font-semibold text-zinc-600">
                 Welcome, {user?.username || "User"}
               </h1>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 pt-2 px-3">
                 {state.activeTab === 'projects'
                   ? "Manage your projects and tasks"
                   : "Plan and optimize your schedule"

@@ -63,7 +63,7 @@ const ProjectCard = memo(({
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
-        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+        <h3 className="text-lg font-semibold text-gray-700 group-hover:text-blue-600 transition-colors line-clamp-2">
           {project.title}
         </h3>
         
@@ -156,7 +156,7 @@ const ProjectCard = memo(({
               {project.tasks.filter(task => task.isCompleted).length} / {project.tasks.length}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-gray-200 rounded-full h-1.5 mt-3">
             <div
               className="bg-darkBlue h-1.5 rounded-full transition-all duration-300"
               style={{
