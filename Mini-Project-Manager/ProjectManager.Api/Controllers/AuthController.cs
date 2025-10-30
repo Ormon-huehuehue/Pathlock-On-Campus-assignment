@@ -93,7 +93,8 @@ namespace ProjectManager.Api.Controllers
                     throw new UnauthorizedException("Invalid credentials");
 
                 var token = _tokenService.CreateToken(user);
-                return Ok(new { token });
+                
+                return Ok(new { token, user = new{ user.Username} });
             }
             catch (DbUpdateException ex)
             {

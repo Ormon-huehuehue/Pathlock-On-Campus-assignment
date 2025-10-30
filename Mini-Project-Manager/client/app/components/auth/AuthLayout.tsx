@@ -31,7 +31,7 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       </div>
 
       {/* Right side - Illustration */}
-      <div className="w-full md:w-1/2 rounded-lg mx-4 my-4 md:m-10 border-2 bg-emerald-50 flex items-center justify-center p-4 md:p-8 order-first md:order-last">
+      <div className="md:w-1/2 rounded-lg mx-4 my-4 md:m-10 border-2 bg-emerald-50 flex items-center justify-center p-4 md:p-8 order-first md:order-last">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

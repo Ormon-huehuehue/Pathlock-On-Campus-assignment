@@ -33,10 +33,10 @@ interface TaskModalProps {
   isLoading?: boolean;
 }
 
-export default function TaskModal({ 
-  isOpen, 
-  onClose, 
-  task, 
+export default function TaskModal({
+  isOpen,
+  onClose,
+  task,
   mode = 'create',
   onSuccess,
   preservedState,
@@ -60,17 +60,17 @@ export default function TaskModal({
   const handleSubmit = async (formData: TaskFormData) => {
     try {
       setSubmitError('');
-      
+
       // For now, we'll just call the success callback with the form data
       // In a real implementation, this would make an API call to add/update the task
       if (onSuccess) {
         onSuccess(formData);
       }
-      
+
       onClose();
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
+      const errorMessage = error instanceof Error
+        ? error.message
         : 'An unexpected error occurred. Please try again.';
       setSubmitError(errorMessage);
     }
