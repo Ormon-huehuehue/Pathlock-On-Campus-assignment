@@ -12,7 +12,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 type AuthMode = "login" | "register";
 
 export default function AuthPage() {
-  const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const [authMode, setAuthMode] = useState<AuthMode>("register");
   const { isAuthenticated, isContextLoading } = useAuth();
   const router = useRouter();
 
