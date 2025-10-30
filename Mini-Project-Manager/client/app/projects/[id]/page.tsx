@@ -329,13 +329,12 @@ export default function ProjectDetailsPage() {
                   className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-white/60 backdrop-blur border border-white/30 shadow-sm hover:bg-white/80 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to Dashboard
                 </button>
                 <div>
-                  <h1 className="text-2xl font-semibold text-gray-900">
+                  <h1 className="text-lg font-semibold text-gray-900">
                     {project.title}
                   </h1>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs text-slate-500">
                     Created {formatDate(project.createdAt)}
                   </p>
                 </div>
@@ -372,7 +371,7 @@ export default function ProjectDetailsPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-6"
+            className="mb-6 flex justify-center block sm:hidden"
           >
             <div className="flex items-center gap-2 p-1 bg-white/60 backdrop-blur rounded-xl border border-white/30 shadow-sm w-fit">
               <button
@@ -428,7 +427,6 @@ export default function ProjectDetailsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <motion.div 
                       className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
-                      whileHover={{ scale: 1.02 }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
@@ -439,10 +437,10 @@ export default function ProjectDetailsPage() {
                           <p className="text-sm text-gray-600">Total Tasks</p>
                           <motion.p 
                             key={taskStats.total}
-                            initial={{ scale: 1.2, color: '#3b82f6' }}
+                            initial={{ scale: 1.02, color: '#3b82f6' }}
                             animate={{ scale: 1, color: '#111827' }}
                             transition={{ duration: 0.3 }}
-                            className="text-2xl font-semibold text-gray-900"
+                            className="text-md font-semibold text-gray-900"
                           >
                             {taskStats.total}
                           </motion.p>
@@ -452,7 +450,6 @@ export default function ProjectDetailsPage() {
 
                     <motion.div 
                       className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
-                      whileHover={{ scale: 1.02 }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
@@ -470,10 +467,10 @@ export default function ProjectDetailsPage() {
                           <p className="text-sm text-gray-600">Completed</p>
                           <motion.p 
                             key={taskStats.completed}
-                            initial={{ scale: 1.3, color: '#10b981' }}
+                            initial={{ scale: 1.02, color: '#10b981' }}
                             animate={{ scale: 1, color: '#111827' }}
                             transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
-                            className="text-2xl font-semibold text-gray-900"
+                            className="text-md font-semibold text-gray-900"
                           >
                             {taskStats.completed}
                           </motion.p>
@@ -483,7 +480,6 @@ export default function ProjectDetailsPage() {
 
                     <motion.div 
                       className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
-                      whileHover={{ scale: 1.02 }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
@@ -501,10 +497,10 @@ export default function ProjectDetailsPage() {
                           <p className="text-sm text-gray-600">Progress</p>
                           <motion.p 
                             key={Math.round(taskStats.progress)}
-                            initial={{ scale: 1.2, color: '#8b5cf6' }}
+                            initial={{ scale: 1.02, color: '#8b5cf6' }}
                             animate={{ scale: 1, color: '#111827' }}
                             transition={{ duration: 0.3 }}
-                            className="text-2xl font-semibold text-gray-900"
+                            className="text-md font-semibold text-gray-900"
                           >
                             {Math.round(taskStats.progress)}%
                           </motion.p>
@@ -879,10 +875,12 @@ export default function ProjectDetailsPage() {
           />
 
           {/* Bottom Navigation */}
+          <div className='hidden sm:block'>
           <BottomBar
             activeTab={activeTab}
             onTabChange={handleTabChange}
-          />
+            />
+          </div>
         </div>
       </div>
     </PageTransition>
