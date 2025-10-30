@@ -76,7 +76,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-amber-50 flex items-start justify-center p-6">
+    <div className="min-h-screen flex items-start justify-center p-6">
       <div className="w-full max-w-4xl">
         {/* Header */}
         <motion.header

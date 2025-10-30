@@ -32,7 +32,7 @@ export default function Home() {
   // Show Dashboard for authenticated users
   return (
     <PageTransition>
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <div className="flex min-h-screen w-screen bg-gradient-to-b from-white to-amber-50 items-center justify-center font-sans">
         <Dashboard/>
         <BottomBar />
       </div>
