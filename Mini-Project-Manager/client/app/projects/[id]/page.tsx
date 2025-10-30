@@ -17,6 +17,7 @@ import {
   Brain
 } from 'lucide-react';
 import { useAuth } from '@/app/hooks/useAuth';
+import { useToast } from '@/app/components/ui/ToastProvider';
 import { Project } from '@/app/types/projects';
 import { ProjectService } from '@/app/services/projects';
 import ProjectModal from '@/app/components/ProjectModal';
@@ -31,6 +32,7 @@ type TabType = 'projects' | 'scheduler' | 'tasks';
 
 export default function ProjectDetailsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { showSuccess, showError } = useToast();
   const router = useRouter();
   const params = useParams();
   const projectId = parseInt(params.id as string);
@@ -44,6 +46,8 @@ export default function ProjectDetailsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('tasks');
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [updatingTasks, setUpdatingTasks] = useState<Set<number>>(new Set());
+  const [taskErrors, setTaskErrors] = useState<Record<number, string>>({});
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -129,7 +133,7 @@ export default function ProjectDetailsPage() {
       // Call the API to add the task
       await ProjectService.addTask(projectId, taskData);
       
-      // Refresh the project data to show the new task
+      // Refresh the project data to show the new task and update statistics
       await fetchProject();
       
       setIsTaskModalOpen(false);
@@ -137,6 +141,112 @@ export default function ProjectDetailsPage() {
       setError(err.message || 'Failed to add task');
     } finally {
       setIsAddingTask(false);
+    }
+  };
+
+  // Debounce function to prevent rapid successive clicks
+  const debounce = (func: Function, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: any[]) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
+  const handleTaskToggle = async (taskId: number, currentStatus: boolean) => {
+    // Prevent multiple simultaneous updates for the same task
+    if (updatingTasks.has(taskId)) {
+      return;
+    }
+
+    // Get task details for better user feedback
+    const task = project?.tasks?.find(t => t.id === taskId);
+    const taskTitle = task?.title || 'Task';
+    const newStatus = !currentStatus;
+
+    // Clear any previous errors for this task
+    setTaskErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[taskId];
+      return newErrors;
+    });
+
+    // Add task to updating set to show loading state
+    setUpdatingTasks(prev => new Set(prev).add(taskId));
+
+    // Optimistic UI update - immediately update the visual state
+    setProject(prevProject => {
+      if (!prevProject) return prevProject;
+      return {
+        ...prevProject,
+        tasks: prevProject.tasks?.map(task =>
+          task.id === taskId ? { ...task, isCompleted: newStatus } : task
+        )
+      };
+    });
+
+    try {
+      // API call to update task - need to send all required fields for backend
+      await ProjectService.updateTask(taskId, { 
+        title: task?.title || '',
+        isCompleted: newStatus 
+      });
+      
+      // Show success feedback
+      showSuccess(
+        'Task Updated',
+        `"${taskTitle}" marked as ${newStatus ? 'completed' : 'incomplete'}`
+      );
+      
+      // Refresh project data to ensure consistency with server state and update statistics
+      await fetchProject();
+    } catch (err: any) {
+      // Revert optimistic update on failure - restore original state
+      setProject(prevProject => {
+        if (!prevProject) return prevProject;
+        return {
+          ...prevProject,
+          tasks: prevProject.tasks?.map(task =>
+            task.id === taskId ? { ...task, isCompleted: currentStatus } : task
+          )
+        };
+      });
+
+      // Show error toast notification
+      showError(
+        'Update Failed',
+        `Failed to update "${taskTitle}": ${err.message || 'Please try again'}`
+      );
+
+      // Set error for this specific task (for inline display)
+      setTaskErrors(prev => ({
+        ...prev,
+        [taskId]: err.message || 'Failed to update task'
+      }));
+    } finally {
+      // Always remove task from updating set to restore interactivity
+      setUpdatingTasks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(taskId);
+        return newSet;
+      });
+    }
+  };
+
+  // Debounced version of the toggle handler
+  const debouncedTaskToggle = debounce(handleTaskToggle, 300);
+
+  // Keyboard handler for task toggle
+  const handleTaskKeyDown = (event: React.KeyboardEvent, taskId: number, currentStatus: boolean) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (!updatingTasks.has(taskId)) {
+        debouncedTaskToggle(taskId, currentStatus);
+      }
     }
   };
 
@@ -317,41 +427,91 @@ export default function ProjectDetailsPage() {
 
                   {/* Task Statistics */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30">
+                    <motion.div 
+                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    >
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-100 rounded-lg">
                           <Circle className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Total Tasks</p>
-                          <p className="text-2xl font-semibold text-gray-900">{taskStats.total}</p>
+                          <motion.p 
+                            key={taskStats.total}
+                            initial={{ scale: 1.2, color: '#3b82f6' }}
+                            animate={{ scale: 1, color: '#111827' }}
+                            transition={{ duration: 0.3 }}
+                            className="text-2xl font-semibold text-gray-900"
+                          >
+                            {taskStats.total}
+                          </motion.p>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30">
+                    <motion.div 
+                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    >
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 rounded-lg">
+                        <motion.div 
+                          className="p-2 bg-green-100 rounded-lg"
+                          animate={{ 
+                            scale: taskStats.completed > 0 ? [1, 1.1, 1] : 1,
+                            rotate: taskStats.completed > 0 ? [0, 5, -5, 0] : 0
+                          }}
+                          transition={{ duration: 0.5 }}
+                        >
                           <CheckCircle2 className="w-5 h-5 text-green-600" />
-                        </div>
+                        </motion.div>
                         <div>
                           <p className="text-sm text-gray-600">Completed</p>
-                          <p className="text-2xl font-semibold text-gray-900">{taskStats.completed}</p>
+                          <motion.p 
+                            key={taskStats.completed}
+                            initial={{ scale: 1.3, color: '#10b981' }}
+                            animate={{ scale: 1, color: '#111827' }}
+                            transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+                            className="text-2xl font-semibold text-gray-900"
+                          >
+                            {taskStats.completed}
+                          </motion.p>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30">
+                    <motion.div 
+                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    >
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-purple-100 rounded-lg">
+                        <motion.div 
+                          className="p-2 bg-purple-100 rounded-lg"
+                          animate={{ 
+                            rotate: taskStats.progress === 100 ? 360 : 0,
+                            scale: taskStats.progress === 100 ? [1, 1.2, 1] : 1
+                          }}
+                          transition={{ duration: 0.6 }}
+                        >
                           <Clock className="w-5 h-5 text-purple-600" />
-                        </div>
+                        </motion.div>
                         <div>
                           <p className="text-sm text-gray-600">Progress</p>
-                          <p className="text-2xl font-semibold text-gray-900">{Math.round(taskStats.progress)}%</p>
+                          <motion.p 
+                            key={Math.round(taskStats.progress)}
+                            initial={{ scale: 1.2, color: '#8b5cf6' }}
+                            animate={{ scale: 1, color: '#111827' }}
+                            transition={{ duration: 0.3 }}
+                            className="text-2xl font-semibold text-gray-900"
+                          >
+                            {Math.round(taskStats.progress)}%
+                          </motion.p>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* Progress Bar */}
@@ -359,15 +519,75 @@ export default function ProjectDetailsPage() {
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                         <span>Overall Progress</span>
-                        <span>{taskStats.completed} of {taskStats.total} tasks completed</span>
+                        <motion.span
+                          key={`${taskStats.completed}-${taskStats.total}`}
+                          initial={{ scale: 1.1, color: '#059669' }}
+                          animate={{ scale: 1, color: '#6b7280' }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                        >
+                          {taskStats.completed} of {taskStats.total} tasks completed
+                        </motion.span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                         <motion.div
-                          className="bg-emerald-600 h-2 rounded-full"
+                          className="h-3 rounded-full relative overflow-hidden"
+                          style={{
+                            background: taskStats.progress === 100 
+                              ? 'linear-gradient(90deg, #10b981, #059669)' 
+                              : 'linear-gradient(90deg, #10b981, #34d399)'
+                          }}
                           initial={{ width: 0 }}
                           animate={{ width: `${taskStats.progress}%` }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                        />
+                          transition={{ 
+                            duration: 0.8, 
+                            ease: "easeInOut",
+                            type: "spring",
+                            stiffness: 100,
+                            damping: 15
+                          }}
+                        >
+                          {/* Animated shine effect */}
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '100%' }}
+                            transition={{
+                              duration: 1.5,
+                              ease: "easeInOut",
+                              repeat: taskStats.progress > 0 ? 1 : 0,
+                              delay: 0.3
+                            }}
+                          />
+                        </motion.div>
+                      </div>
+                      
+                      {/* Progress percentage with animation */}
+                      <div className="flex justify-center mt-2">
+                        <motion.div
+                          key={taskStats.progress}
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.4, delay: 0.2 }}
+                          className={`text-xs font-medium px-2 py-1 rounded-full ${
+                            taskStats.progress === 100 
+                              ? 'bg-green-100 text-green-800' 
+                              : taskStats.progress >= 50 
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {Math.round(taskStats.progress)}% Complete
+                          {taskStats.progress === 100 && (
+                            <motion.span
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
+                              className="ml-1"
+                            >
+                              🎉
+                            </motion.span>
+                          )}
+                        </motion.div>
                       </div>
                     </div>
                   )}
@@ -394,59 +614,150 @@ export default function ProjectDetailsPage() {
                   {project.tasks && project.tasks.length > 0 ? (
                     <div className="space-y-3">
                       <AnimatePresence>
-                        {project.tasks.map((task, index) => (
-                          <motion.div
-                            key={task.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ delay: index * 0.05 }}
-                            className={`p-4 rounded-xl border transition-all ${task.isCompleted
-                              ? 'bg-green-50 border-green-200'
-                              : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                        {project.tasks.map((task, index) => {
+                          const isUpdating = updatingTasks.has(task.id);
+                          const hasError = taskErrors[task.id];
+                          
+                          return (
+                            <motion.div
+                              key={task.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              transition={{ delay: index * 0.05 }}
+                              className={`relative p-4 rounded-xl border transition-all cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+                                task.isCompleted
+                                  ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                                  : 'bg-gray-50 border-gray-200 hover:border-gray-300 hover:bg-gray-100'
+                              } ${hasError ? 'ring-2 ring-red-200 border-red-300' : ''} ${
+                                isUpdating ? 'opacity-75 pointer-events-none' : ''
                               }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="mt-1">
-                                {task.isCompleted ? (
-                                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                                ) : (
-                                  <Circle className="w-5 h-5 text-gray-400" />
-                                )}
-                              </div>
+                              onClick={() => !isUpdating && debouncedTaskToggle(task.id, task.isCompleted)}
+                              onKeyDown={(e) => handleTaskKeyDown(e, task.id, task.isCompleted)}
+                              tabIndex={0}
+                              role="button"
+                              aria-label={`${task.isCompleted ? 'Mark as incomplete' : 'Mark as complete'}: ${task.title}`}
+                              aria-pressed={task.isCompleted}
+                              aria-busy={isUpdating}
+                              aria-describedby={hasError ? `task-error-${task.id}` : undefined}
+                              whileHover={{ scale: 1.01 }}
+                              whileTap={{ scale: 0.99 }}
+                            >
+                              {/* Loading overlay */}
+                              {isUpdating && (
+                                <motion.div
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  className="absolute inset-0 bg-white/70 backdrop-blur-sm rounded-xl flex items-center justify-center z-10"
+                                >
+                                  <motion.div
+                                    initial={{ scale: 0.8 }}
+                                    animate={{ scale: 1 }}
+                                    className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-sm border"
+                                  >
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent"></div>
+                                    <span className="text-sm text-gray-600">Updating...</span>
+                                  </motion.div>
+                                </motion.div>
+                              )}
 
-                              <div className="flex-1">
-                                <h3 className={`font-medium ${task.isCompleted ? 'text-green-800 line-through' : 'text-gray-900'
-                                  }`}>
-                                  {task.title}
-                                </h3>
+                              <div className="flex items-start gap-3">
+                                <motion.div 
+                                  className="mt-1"
+                                  animate={{ 
+                                    scale: task.isCompleted ? 1.1 : 1,
+                                    rotate: task.isCompleted ? 360 : 0 
+                                  }}
+                                  transition={{ 
+                                    type: "spring", 
+                                    stiffness: 300, 
+                                    damping: 20,
+                                    duration: 0.5 
+                                  }}
+                                >
+                                  {task.isCompleted ? (
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                    >
+                                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                    </motion.div>
+                                  ) : (
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                    >
+                                      <Circle className="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                                    </motion.div>
+                                  )}
+                                </motion.div>
 
-                                {task.description && (
-                                  <p className={`text-sm mt-1 ${task.isCompleted ? 'text-green-600' : 'text-gray-600'
-                                    }`}>
-                                    {task.description}
-                                  </p>
-                                )}
+                                <div className="flex-1">
+                                  <motion.h3 
+                                    className={`font-medium transition-all duration-300 ${
+                                      task.isCompleted ? 'text-green-800 line-through' : 'text-gray-900'
+                                    }`}
+                                    animate={{ 
+                                      opacity: task.isCompleted ? 0.8 : 1,
+                                      x: isUpdating ? [0, 2, 0] : 0
+                                    }}
+                                    transition={{
+                                      opacity: { duration: 0.3 },
+                                      x: { duration: 0.5, repeat: isUpdating ? Infinity : 0 }
+                                    }}
+                                  >
+                                    {task.title}
+                                  </motion.h3>
 
-                                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {task.estimatedHours}h
-                                  </span>
-
-                                  {task.dueDate && (
-                                    <span className="flex items-center gap-1">
-                                      <Calendar className="w-3 h-3" />
-                                      {new Date(task.dueDate).toLocaleDateString()}
-                                    </span>
+                                  {task.description && (
+                                    <motion.p 
+                                      className={`text-sm mt-1 transition-all duration-300 ${
+                                        task.isCompleted ? 'text-green-600 line-through' : 'text-gray-600'
+                                      }`}
+                                      animate={{ 
+                                        opacity: task.isCompleted ? 0.7 : 1 
+                                      }}
+                                    >
+                                      {task.description}
+                                    </motion.p>
                                   )}
 
-                            
+                                  <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      {task.estimatedHours}h
+                                    </span>
+
+                                    {task.dueDate && (
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        {new Date(task.dueDate).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Error message */}
+                                  {hasError && (
+                                    <motion.div
+                                      id={`task-error-${task.id}`}
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: 1, height: 'auto' }}
+                                      exit={{ opacity: 0, height: 0 }}
+                                      className="mt-2 text-xs text-red-600 bg-red-100 px-2 py-1 rounded"
+                                      role="alert"
+                                      aria-live="polite"
+                                    >
+                                      {hasError}
+                                    </motion.div>
+                                  )}
                                 </div>
                               </div>
-                            </div>
-                          </motion.div>
-                        ))}
+                            </motion.div>
+                          );
+                        })}
                       </AnimatePresence>
                     </div>
                   ) : (

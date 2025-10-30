@@ -122,6 +122,22 @@ export class ProjectService {
   }
 
   /**
+   * Update an existing task
+   * @param taskId - The ID of the task to update
+   * @param taskData - The updated task data
+   * @returns Promise<Task> - The updated task
+   * @throws ApiError - When update fails or validation errors occur
+   */
+  static async updateTask(taskId: number, taskData: Partial<Task>): Promise<Task> {
+    try {
+      const response = await api.put<Task>(`/api/tasks/${taskId}`, taskData);
+      return response.data;
+    } catch (error: any) {
+      throw this.handleApiError(error, `Failed to update task with ID ${taskId}`);
+    }
+  }
+
+  /**
    * Generate optimized schedule for project tasks
    * @param projectId - The ID of the project to schedule
    * @param tasks - Array of tasks to schedule
@@ -244,6 +260,7 @@ export const {
   updateProject,
   deleteProject,
   addTask,
+  updateTask,
   generateSchedule,
   isValidationError,
   isNetworkError,

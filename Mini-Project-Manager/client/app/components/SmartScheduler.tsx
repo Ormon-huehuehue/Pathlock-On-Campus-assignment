@@ -490,7 +490,7 @@ const SmartScheduler = memo(({
                       )}
 
                       {/* Dependencies */}
-                      {task.dependencies.length > 0 && (
+                      {task.dependencies && task.dependencies.length > 0 && (
                         <div className="flex items-start text-sm">
                           <div className="flex items-center justify-center w-8 h-8 bg-green-100 text-green-600 rounded-lg mr-3 mt-0.5">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
