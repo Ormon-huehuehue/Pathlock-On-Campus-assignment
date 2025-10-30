@@ -5,12 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   FolderOpen,
-  LogOut,
 } from "lucide-react";
-import { useAuth } from "@/app/hooks/useAuth";
 import { useProjects } from "@/app/hooks/useProjects";
 import ProjectCard from "./ProjectCard";
-import ProjectModal from "./ProjectModal";
 import { Project } from "@/app/types/projects";
 
 const cardIn = {
@@ -18,9 +15,13 @@ const cardIn = {
   show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: 0.05 * i } }),
 };
 
-export default function Dashboard() {
+interface DashboardProps {
+  onProjectEdit?: (project: Project) => void;
+  onCreateProject?: () => void;
+}
+
+export default function Dashboard({ onProjectEdit, onCreateProject }: DashboardProps) {
   const router = useRouter();
-  const { user, logout } = useAuth();
   const { 
     projects, 
     isLoading, 
@@ -30,43 +31,28 @@ export default function Dashboard() {
     isDeleting 
   } = useProjects();
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-  // Listen for project modal events from BottomBar
+  // Listen for project modal events from BottomBar (fallback for standalone usage)
   useEffect(() => {
     const handleOpenModal = () => {
-      setIsCreateModalOpen(true);
+      if (onCreateProject) {
+        onCreateProject();
+      }
     };
 
     window.addEventListener('openProjectModal', handleOpenModal);
     return () => {
       window.removeEventListener('openProjectModal', handleOpenModal);
     };
-  }, []);
-
-  const handleLogout = () => {
-    logout();
-  };
-
-  const handleCloseModal = () => {
-    setIsCreateModalOpen(false);
-  };
+  }, [onCreateProject]);
 
   const handleViewProject = (project: Project) => {
     router.push(`/projects/${project.id}`);
   };
 
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
   const handleEditProject = (project: Project) => {
-    setEditingProject(project);
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditModalClose = () => {
-    setIsEditModalOpen(false);
-    setEditingProject(null);
+    if (onProjectEdit) {
+      onProjectEdit(project);
+    }
   };
 
   const handleDeleteProject = async (project: Project) => {
@@ -76,42 +62,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen flex items-start justify-center p-6">
-      <div className="w-full max-w-4xl">
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="mb-6"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-zinc-800">
-                Welcome, {user?.username || "User"}
-              </h1>
-              <p className="text-sm text-slate-500">
-                {hasProjects 
-                  ? `You have ${projects.length} project${projects.length === 1 ? '' : 's'} to manage`
-                  : "Let's get started by creating your first project!"
-                }
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <motion.button
-                onClick={handleLogout}
-                aria-label="logout"
-                className="flex items-center gap-2 text-sm px-3 py-2 rounded-md bg-red-50 text-red-600 border border-red-200 shadow-sm hover:bg-red-100 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </motion.button>
-            </div>
-          </div>
-        </motion.header>
+    <div className="w-full">
+      <div className="w-full max-w-4xl mx-auto">
 
         {/* Projects Section */}
         <motion.section
@@ -154,7 +106,7 @@ export default function Dashboard() {
                 Create your first project to start organizing your work and tasks.
               </p>
               <motion.button
-                onClick={() => setIsCreateModalOpen(true)}
+                onClick={() => onCreateProject && onCreateProject()}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -194,21 +146,6 @@ export default function Dashboard() {
             </div>
           )}
         </motion.section>
-
-        {/* Project Creation Modal */}
-        <ProjectModal
-          isOpen={isCreateModalOpen}
-          onClose={handleCloseModal}
-          mode="create"
-        />
-
-        {/* Project Edit Modal */}
-        <ProjectModal
-          isOpen={isEditModalOpen}
-          onClose={handleEditModalClose}
-          mode="edit"
-          project={editingProject || undefined}
-        />
       </div>
     </div>
   );

@@ -3,8 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './hooks/useAuth';
-import Dashboard from "./components/Dashboard";
-import BottomBar from "./components/BottomBar";
+import UnifiedDashboard from "./components/UnifiedDashboard";
 import PageTransition from "./components/ui/PageTransition";
 import GlobalLoader from "./components/ui/GlobalLoader";
 
@@ -29,13 +28,10 @@ export default function Home() {
     return null;
   }
 
-  // Show Dashboard for authenticated users
+  // Show UnifiedDashboard for authenticated users
   return (
     <PageTransition>
-      <div className="flex min-h-screen w-screen bg-gradient-to-b from-white to-amber-50 items-center justify-center font-sans">
-        <Dashboard/>
-        <BottomBar />
-      </div>
+      <UnifiedDashboard />
     </PageTransition>
   );
 }
