@@ -27,11 +27,6 @@ export interface SchedulerTaskInput {
   dependencies: string[];
 }
 
-// API Response Types
-export interface ProjectsResponse {
-  projects: Project[];
-}
-
 // export interface ProjectResponse {
 //   data: Project;
 // }

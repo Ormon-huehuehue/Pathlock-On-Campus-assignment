@@ -1,7 +1,6 @@
 import api from './api';
 import {
   Project,
-  ProjectsResponse,
   ProjectResponse,
   ProjectFormData,
   SchedulerTaskInput,
@@ -22,8 +21,8 @@ export class ProjectService {
    */
   static async getProjects(): Promise<Project[]> {
     try {
-      const response = await api.get<ProjectsResponse>('/api/projects');
-      return response.data.projects;
+      const response = await api.get<Project[]>('/api/projects');
+      return response.data;
     } catch (error: any) {
       throw this.handleApiError(error, 'Failed to fetch projects');
     }
