@@ -50,15 +50,15 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
     label: 'Projects',
     icon: <HomeIcon className='w-5 h-5' />,
     tab: 'projects',
-    activeColor: 'text-primary-600',
-    pillColor: 'bg-primary-100'
+    activeColor: 'text-darkBlue',
+    pillColor: 'bg-lightBlue'
   },
   {
     label: 'Smart Scheduler',
     icon: <CalendarIcon className='w-5 h-5' />,
     tab: 'scheduler',
-    activeColor: 'text-secondary-600',
-    pillColor: 'bg-secondary-50'
+    activeColor: 'text-darkBlue',
+    pillColor: 'bg-lightBlue'
   },
 ]
 

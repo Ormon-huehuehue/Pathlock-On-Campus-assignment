@@ -63,17 +63,17 @@ export default function Dashboard({ onProjectEdit, onCreateProject }: DashboardP
 
   return (
     <div className="w-full">
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-4xl mt-10 mx-auto">
 
         {/* Projects Section */}
         <motion.section
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="rounded-2xl bg-gradient-to-br from-emerald-50/80 to-emerald-100/70 p-6 shadow-lg border border-white/30"
+          className="rounded-2xl bg-white/80 p-6 shadow-lg border border-white/30"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-lg text-zinc-600">Your Projects</h2>
+            <h2 className="font-bold text-xl text-zinc-600">Your Projects</h2>
             {hasProjects && (
               <span className="text-sm text-slate-600">
                 {projects.length} project{projects.length === 1 ? '' : 's'}

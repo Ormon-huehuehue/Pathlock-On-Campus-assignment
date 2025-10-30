@@ -29,9 +29,9 @@ const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
     const baseClasses = "relative inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed touch-manipulation";
 
     const variantClasses = {
-      primary: "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500 disabled:bg-emerald-400",
+      primary: "bg-darkBlue text-white disabled:bg-lightBlue disabled:text-darkBlue transition-all",
       secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 disabled:bg-gray-400",
-      outline: "border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 focus:ring-emerald-500 disabled:border-emerald-300 disabled:text-emerald-300"
+      outline: "border-2 border-lightBlue text-white"
     };
 
     const sizeClasses = {
@@ -60,7 +60,6 @@ const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
         className={buttonClasses}
         aria-busy={isLoading}
         aria-describedby={isLoading ? "loading-description" : undefined}
-        whileHover={!isDisabled ? { scale: 1.02 } : {}}
         whileTap={!isDisabled ? { scale: 0.98 } : {}}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
         {...(props as any)}

@@ -205,7 +205,7 @@ export default function ProjectForm({
           type="submit"
           isLoading={isLoading}
           disabled={isLoading || !formData.title.trim()}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2.5 hover:bg-darkBlue/80  cursor-pointer text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {project ? 'Update Project' : 'Create Project'}
         </LoadingButton>

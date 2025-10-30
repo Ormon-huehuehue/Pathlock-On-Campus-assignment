@@ -61,7 +61,7 @@ export default function UnifiedDashboard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-amber-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-lightBlue to-white">
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -12 }}
