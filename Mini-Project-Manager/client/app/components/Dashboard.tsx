@@ -129,7 +129,7 @@ const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: Dash
 
           {/* Projects Grid */}
           {!isLoading && !error && hasProjects && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <AnimatePresence>
                 {projects.map((project, i) => (
                   <motion.div
@@ -139,7 +139,6 @@ const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: Dash
                     exit={{ opacity: 0, scale: 0.98 }}
                     variants={cardIn}
                     custom={i}
-                    whileHover={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                     style={{
                       willChange: 'transform'
