@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -9,9 +10,8 @@ import {
 import { useAuth } from "@/app/hooks/useAuth";
 import { useProjects } from "@/app/hooks/useProjects";
 import ProjectCard from "./ProjectCard";
-import Modal from "./ui/Modal";
-import ProjectForm from "./ui/ProjectForm";
-import { Project, ProjectFormData } from "@/app/types/projects";
+import ProjectModal from "./ProjectModal";
+import { Project } from "@/app/types/projects";
 
 const cardIn = {
   hidden: { opacity: 0, y: 10 },
@@ -19,14 +19,13 @@ const cardIn = {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
   const { user, logout } = useAuth();
   const { 
     projects, 
     isLoading, 
     error, 
     hasProjects, 
-    createProject, 
-    isCreating,
     deleteProject,
     isDeleting 
   } = useProjects();
@@ -49,21 +48,25 @@ export default function Dashboard() {
     logout();
   };
 
-  const handleCreateProject = async (projectData: ProjectFormData) => {
-    const result = await createProject(projectData);
-    if (result.success) {
-      setIsCreateModalOpen(false);
-    }
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
   };
 
   const handleViewProject = (project: Project) => {
-    // TODO: Navigate to project details view
-    console.log('View project:', project);
+    router.push(`/projects/${project.id}`);
   };
 
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const handleEditProject = (project: Project) => {
-    // TODO: Open edit modal
-    console.log('Edit project:', project);
+    setEditingProject(project);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditingProject(null);
   };
 
   const handleDeleteProject = async (project: Project) => {
@@ -84,7 +87,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-semibold">
+              <h1 className="text-2xl font-semibold text-zinc-800">
                 Welcome, {user?.username || "User"}
               </h1>
               <p className="text-sm text-slate-500">
@@ -95,23 +98,6 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <motion.button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm hover:bg-emerald-100 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                disabled={isCreating}
-              >
-                <Plus className="w-4 h-4" />
-                New Project
-              </motion.button>
-              <button
-                aria-label="help"
-                className="text-sm px-3 py-2 rounded-md bg-white/60 backdrop-blur border border-white/30 shadow-sm hover:bg-white/80 transition-colors"
-              >
-                Need help?
-              </button>
               <motion.button
                 onClick={handleLogout}
                 aria-label="logout"
@@ -135,7 +121,7 @@ export default function Dashboard() {
           className="rounded-2xl bg-gradient-to-br from-emerald-50/80 to-emerald-100/70 p-6 shadow-lg border border-white/30"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-lg">Your Projects</h2>
+            <h2 className="font-semibold text-lg text-zinc-600">Your Projects</h2>
             {hasProjects && (
               <span className="text-sm text-slate-600">
                 {projects.length} project{projects.length === 1 ? '' : 's'}
@@ -173,7 +159,6 @@ export default function Dashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                disabled={isCreating}
               >
                 <Plus className="w-5 h-5" />
                 Create Your First Project
@@ -211,17 +196,19 @@ export default function Dashboard() {
         </motion.section>
 
         {/* Project Creation Modal */}
-        <Modal
+        <ProjectModal
           isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          title="Create New Project"
-        >
-          <ProjectForm
-            onSubmit={handleCreateProject}
-            onCancel={() => setIsCreateModalOpen(false)}
-            isLoading={isCreating}
-          />
-        </Modal>
+          onClose={handleCloseModal}
+          mode="create"
+        />
+
+        {/* Project Edit Modal */}
+        <ProjectModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          mode="edit"
+          project={editingProject || undefined}
+        />
       </div>
     </div>
   );

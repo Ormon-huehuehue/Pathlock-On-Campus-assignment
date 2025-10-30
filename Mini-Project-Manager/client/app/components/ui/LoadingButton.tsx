@@ -1,8 +1,8 @@
 "use client";
 import { forwardRef } from "react";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-interface LoadingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface LoadingButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
   isLoading?: boolean;
   loadingText?: string;
   variant?: "primary" | "secondary" | "outline";
@@ -63,7 +63,7 @@ const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
         whileHover={!isDisabled ? { scale: 1.02 } : {}}
         whileTap={!isDisabled ? { scale: 0.98 } : {}}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        {...props}
+        {...(props as any)}
       >
         {/* Loading Spinner */}
         {isLoading && (

@@ -38,7 +38,7 @@ export class ProjectService {
   static async getProject(projectId: number): Promise<Project> {
     try {
       const response = await api.get<ProjectResponse>(`/api/projects/${projectId}`);
-      return response.data.project;
+      return response.data;
     } catch (error: any) {
       throw this.handleApiError(error, `Failed to fetch project with ID ${projectId}`);
     }
@@ -53,7 +53,8 @@ export class ProjectService {
   static async createProject(projectData: ProjectFormData): Promise<Project> {
     try {
       const response = await api.post<ProjectResponse>('/api/projects', projectData);
-      return response.data.project;
+      console.log("response : ", response.data);
+      return response.data;
     } catch (error: any) {
       throw this.handleApiError(error, 'Failed to create project');
     }
@@ -69,7 +70,7 @@ export class ProjectService {
   static async updateProject(projectId: number, projectData: Partial<ProjectFormData>): Promise<Project> {
     try {
       const response = await api.put<ProjectResponse>(`/api/projects/${projectId}`, projectData);
-      return response.data.project;
+      return response.data;
     } catch (error: any) {
       throw this.handleApiError(error, `Failed to update project with ID ${projectId}`);
     }

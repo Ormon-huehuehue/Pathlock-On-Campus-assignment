@@ -6,6 +6,8 @@ import { useAuth } from '../hooks/useAuth';
 import BottomBar from "../components/BottomBar";
 import PageTransition from "../components/ui/PageTransition";
 import GlobalLoader from "../components/ui/GlobalLoader";
+import SmartScheduler from "../components/SmartScheduler";
+import { ScheduleResponse } from '../types/projects';
 
 export default function SchedulerPage() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,6 +25,11 @@ export default function SchedulerPage() {
     router.push('/');
   };
 
+  const handleScheduleGenerated = (schedule: ScheduleResponse) => {
+    // Handle schedule generation success
+    console.log('Schedule generated:', schedule);
+  };
+
   // Show loading state while checking authentication
   if (isLoading) {
     return <GlobalLoader message="Checking authentication..." />;
@@ -35,23 +42,12 @@ export default function SchedulerPage() {
 
   return (
     <PageTransition>
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-        <div className="w-full max-w-3xl p-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Smart Scheduler</h1>
-            <p className="text-gray-600 mb-8">
-              Task scheduling and optimization coming soon...
-            </p>
-            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-              <div className="text-gray-500">
-                <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="text-lg font-medium mb-2">Smart Scheduler</p>
-                <p className="text-sm">This feature will be implemented in a future task.</p>
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-zinc-50 font-sans dark:bg-black">
+        <div className="container mx-auto px-4 py-8 pb-24">
+          <SmartScheduler 
+            projectId={1}
+            onScheduleGenerated={handleScheduleGenerated}
+          />
         </div>
         <BottomBar onCreateProject={handleCreateProject} />
       </div>

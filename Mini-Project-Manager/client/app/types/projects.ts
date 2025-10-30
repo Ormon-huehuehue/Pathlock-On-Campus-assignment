@@ -32,9 +32,11 @@ export interface ProjectsResponse {
   projects: Project[];
 }
 
-export interface ProjectResponse {
-  project: Project;
-}
+// export interface ProjectResponse {
+//   data: Project;
+// }
+
+export interface ProjectResponse extends Project{}
 
 export interface ScheduleResponse {
   recommendedOrder: string[];

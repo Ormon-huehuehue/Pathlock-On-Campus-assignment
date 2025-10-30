@@ -125,6 +125,8 @@ export const useProjects = () => {
       clearError();
       
       const newProject = await ProjectService.createProject(projectData);
+
+      console.log("new project response : ", newProject);
       
       // Add the new project to the list
       setState(prev => ({
