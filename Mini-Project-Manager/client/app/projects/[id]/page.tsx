@@ -371,7 +371,7 @@ export default function ProjectDetailsPage() {
               <div className="flex items-center gap-4">
                 <button
                   onClick={handleBack}
-                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-white/60 backdrop-blur border border-white/30 shadow-sm hover:bg-white/80 transition-colors"
+                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-white/60 backdrop-blur border border-gray-200 hover:border-gray-300 cursor-pointer shadow-xs hover:bg-white/80 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
@@ -388,8 +388,7 @@ export default function ProjectDetailsPage() {
               <div className="flex items-center gap-3">
                 <motion.button
                   onClick={handleEdit}
-                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-blue-50 text-blue-600 border border-blue-200 shadow-sm hover:bg-blue-100 transition-colors"
-                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center cursor-pointer gap-2 text-sm px-4 py-2 rounded-md bg-blue-50 text-blue-600 border border-blue-200 shadow-sm hover:bg-blue-100 transition-colors"
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
@@ -399,8 +398,7 @@ export default function ProjectDetailsPage() {
 
                 <motion.button
                   onClick={handleDelete}
-                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-red-50 text-red-600 border border-red-200 shadow-sm hover:bg-red-100 transition-colors"
-                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center gap-2 cursor-pointer text-sm px-4 py-2 rounded-md bg-red-50 text-red-600 border border-red-200 shadow-sm hover:bg-red-100 transition-colors"
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
@@ -643,7 +641,7 @@ export default function ProjectDetailsPage() {
                     <h2 className="font-semibold text-lg">Tasks</h2>
                     <button
                       onClick={handleAddTask}
-                      className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm hover:bg-emerald-100 transition-colors"
+                      className="flex items-center gap-2 text-sm px-4 py-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-500 shadow-sm hover:bg-emerald-100 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
                       Add Task
@@ -826,7 +824,7 @@ export default function ProjectDetailsPage() {
                       </p>
                       <button
                         onClick={handleAddTask}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 font-semibold cursor-pointer border-2 border-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
                       >
                         <Plus className="w-5 h-5" />
                         Add Your First Task

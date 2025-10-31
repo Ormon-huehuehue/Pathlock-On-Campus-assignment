@@ -106,7 +106,7 @@ const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: Dash
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="rounded-2xl bg-white/80 p-6 shadow-lg border border-white/30"
+          className="rounded-2xl bg-white/60 p-6 shadow-sm border border-gray-200"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-xl text-zinc-600">Your Projects</h2>
@@ -143,8 +143,7 @@ const Dashboard = memo(({ onProjectEdit, onCreateProject, refreshTrigger }: Dash
               </p>
               <motion.button
                 onClick={() => onCreateProject && onCreateProject()}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
-                whileHover={{ scale: 1.05 }}
+                className="inline-flex items-center gap-2 px-6 transition-all py-3 bg-emerald-500 font-semibold text-white rounded-xl border-2 border-emerald-600 hover:bg-emerald-700 transition-colors"
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >

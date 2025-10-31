@@ -193,7 +193,7 @@ export default function ProjectForm({
           type="text"
           value={formData.title}
           onChange={(e) => handleInputChange('title', e.target.value)}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+          className={`w-full px-4 py-3 border rounded-xl focus:border-transparent transition-all ${
             errors.title 
               ? 'border-red-300 bg-red-50' 
               : 'border-gray-300 hover:border-gray-400'
@@ -227,7 +227,7 @@ export default function ProjectForm({
           value={formData.description}
           onChange={(e) => handleInputChange('description', e.target.value)}
           rows={4}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none ${
+          className={`w-full px-4 py-3 border rounded-xl focus:border-transparent transition-all resize-none ${
             errors.description 
               ? 'border-red-300 bg-red-50' 
               : 'border-gray-300 hover:border-gray-400'

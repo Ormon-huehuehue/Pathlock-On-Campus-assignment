@@ -240,7 +240,7 @@ export default function TaskForm({
           type="text"
           value={formData.title}
           onChange={(e) => handleInputChange('title', e.target.value)}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${errors.title
+          className={`w-full px-4 py-3 border rounded-xl focus:border-transparent transition-all ${errors.title
             ? 'border-red-300 bg-red-50'
             : 'border-gray-300 hover:border-gray-400'
             }`}
@@ -261,7 +261,7 @@ export default function TaskForm({
       </div>
 
       {/* Description Field */}
-      <div className = 'hidden'>
+      <div className='hidden'>
         <label
           htmlFor="task-description"
           className="block text-sm font-medium text-gray-700 mb-2"
@@ -272,7 +272,7 @@ export default function TaskForm({
           id="task-description"
           value={formData.description}
           onChange={(e) => handleInputChange('description', e.target.value)}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none ${errors.description
+          className={`w-full px-4 py-3 border rounded-xl focus:border-transparent transition-all resize-none ${errors.description
             ? 'border-red-300 bg-red-50'
             : 'border-gray-300 hover:border-gray-400'
             }`}
@@ -308,7 +308,7 @@ export default function TaskForm({
           step="0.5"
           value={formData.estimatedHours}
           onChange={(e) => handleInputChange('estimatedHours', parseFloat(e.target.value) || 1)}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${errors.estimatedHours
+          className={`w-full px-4 py-3 border rounded-xl focus:border-transparent transition-all ${errors.estimatedHours
             ? 'border-red-300 bg-red-50'
             : 'border-gray-300 hover:border-gray-400'
             }`}
@@ -346,7 +346,7 @@ export default function TaskForm({
                 addDependency();
               }
             }}
-            className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all border-gray-300 hover:border-gray-400"
+            className="w-full px-4 py-3 border rounded-xl focus:border-transparent transition-all border-gray-300 hover:border-gray-400"
             placeholder="Enter dependency and press Enter"
             disabled={isLoading}
           />

@@ -49,7 +49,7 @@ const ProjectCard = memo(({
 
   return (
     <div
-      className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer group ${className}`}
+      className={`bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer group ${className}`}
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
