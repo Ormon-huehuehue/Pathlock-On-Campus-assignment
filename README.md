@@ -4,8 +4,13 @@ A comprehensive task and project management solution featuring two distinct appl
 
 ## 🚀 Live Deployments
 
-- **Basic Task Manager API**: [https://basic-task-manager-5e7x.onrender.com](https://basic-task-manager-5e7x.onrender.com)
-- **Mini Project Manager API**: [https://project-manager-api-f5ok.onrender.com](https://project-manager-api-f5ok.onrender.com)
+- **Basic Task Manager frontend** : [https://basic-task-manager-inky.vercel.app/](https://basic-task-manager-inky.vercel.app/)
+- **Basic Task Manager backend**: [https://basic-task-manager-5e7x.onrender.com](https://basic-task-manager-5e7x.onrender.com)
+
+- **Mini Project Manager frontend**: [https://mini-project-manager-gules.vercel.app](https://mini-project-manager-gules.vercel.app)
+- **Mini Project Manager backend**: [https://project-manager-api-f5ok.onrender.com](https://project-manager-api-f5ok.onrender.com)
+
+## NOTE : If the requests from the live frontends fail to hit the APIs, please wait for about 50 secs for Render to spin up the backend again. (Render spins down inactive servers)
 
 ## 📁 Project Structure
 
