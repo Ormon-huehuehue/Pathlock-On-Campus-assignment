@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "0DeAAfv3wcc=",
+  "dgSpecHash": "+XahW9g4Dfs=",
   "success": true,
-  "projectFilePath": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Task-Manager/TaskManager/TaskManager.csproj",
+  "projectFilePath": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Basic-Task-Manager/backend/TaskManager.csproj",
   "expectedPackageFiles": [
     "/home/ormon/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.20/microsoft.aspnetcore.app.ref.8.0.20.nupkg.sha512",
     "/home/ormon/.nuget/packages/microsoft.netcore.app.host.linux-x64/8.0.20/microsoft.netcore.app.host.linux-x64.8.0.20.nupkg.sha512"

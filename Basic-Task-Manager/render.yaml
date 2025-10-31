@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: basic-task-manager-api
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Basic-Task-Manager/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:$PORT
+    healthCheckPath: /api/tasks

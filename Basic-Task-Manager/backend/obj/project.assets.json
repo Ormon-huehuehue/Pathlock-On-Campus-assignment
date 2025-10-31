@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Task-Manager/TaskManager/TaskManager.csproj",
+      "projectUniqueName": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Basic-Task-Manager/backend/TaskManager.csproj",
       "projectName": "TaskManager",
-      "projectPath": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Task-Manager/TaskManager/TaskManager.csproj",
+      "projectPath": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Basic-Task-Manager/backend/TaskManager.csproj",
       "packagesPath": "/home/ormon/.nuget/packages/",
-      "outputPath": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Task-Manager/TaskManager/obj/",
+      "outputPath": "/run/media/ormon/Ara/Coding_shit/pathlock-assignment/Basic-Task-Manager/backend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/ormon/.nuget/NuGet/NuGet.Config"
