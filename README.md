@@ -14,6 +14,13 @@ A comprehensive task and project management solution featuring two distinct appl
 
 ## NOTE : If the requests from the live frontends fail to hit the APIs, please wait for about 50 secs for Render to spin up the backend again. (Render spins down inactive servers)
 
+## Screenshots : 
+<img width="1356" height="773" alt="image" src="https://github.com/user-attachments/assets/2c638ec6-b63a-464c-91ae-022f98d515b9" />
+
+<img width="2070" height="1170" alt="image" src="https://github.com/user-attachments/assets/452aa21d-61a3-42b3-b97e-9308bc8a705f" />
+
+<img width="2045" height="1171" alt="image" src="https://github.com/user-attachments/assets/f388e40d-129a-4f32-8bf5-dff287c523d5" />
+
 ## 📁 Project Structure
 
 ```
