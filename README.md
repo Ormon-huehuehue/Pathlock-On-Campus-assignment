@@ -9,6 +9,7 @@ A comprehensive task and project management solution featuring two distinct appl
 
 - **Mini Project Manager frontend**: [https://mini-project-manager-gules.vercel.app](https://mini-project-manager-gules.vercel.app)
 - **Mini Project Manager backend**: [https://project-manager-api-f5ok.onrender.com](https://project-manager-api-f5ok.onrender.com)
+-- **ASSIGNMENT 2 DEMO VIDEO** : [https://drive.google.com/file/d/1H2e17NJ0HDzqGdfNWTfyd47fDd8TWAdD/view?usp=sharing](drive link)
 
 ## NOTE : If the requests from the live frontends fail to hit the APIs, please wait for about 50 secs for Render to spin up the backend again. (Render spins down inactive servers)
 
