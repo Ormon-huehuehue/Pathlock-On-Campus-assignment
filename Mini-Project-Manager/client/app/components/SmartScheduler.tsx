@@ -269,7 +269,7 @@ const SmartScheduler = memo(({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Task Input Form */}
-        <div className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 border border-white/30">
+        <div className="bg-white/80 backdrop-blur rounded-2xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Add New Task</h2>
           
           <form onSubmit={handleAddTask} className="space-y-4">
@@ -403,7 +403,7 @@ const SmartScheduler = memo(({
         {/* Task List and Schedule */}
         <div className="space-y-6">
           {/* Current Tasks */}
-          <div className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 border border-white/30">
+          <div className="bg-white/80 backdrop-blur rounded-2xl shadow-sm p-6 border border-gray-300">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900">
                 Tasks ({tasks.length})

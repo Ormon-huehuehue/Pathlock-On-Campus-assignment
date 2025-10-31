@@ -388,22 +388,22 @@ export default function ProjectDetailsPage() {
               <div className="flex items-center gap-3">
                 <motion.button
                   onClick={handleEdit}
-                  className="flex items-center cursor-pointer gap-2 text-sm px-4 py-2 rounded-md bg-blue-50 text-blue-600 border border-blue-200 shadow-sm hover:bg-blue-100 transition-colors"
+                  className="flex items-center cursor-pointer gap-2 text-sm px-2 py-2 md:px-4 md:py-4 rounded-md bg-blue-50 text-blue-600 border border-blue-200 shadow-sm hover:bg-blue-100 transition-colors"
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
                   <Edit3 className="w-4 h-4" />
-                  Edit Project
+                  <span className='hidden md:block'>Edit Project</span>
                 </motion.button>
 
                 <motion.button
                   onClick={handleDelete}
-                  className="flex items-center gap-2 cursor-pointer text-sm px-4 py-2 rounded-md bg-red-50 text-red-600 border border-red-200 shadow-sm hover:bg-red-100 transition-colors"
+                  className="flex items-center gap-2 cursor-pointer text-sm px-2 py-2 md:px-4 md:py-4 rounded-md bg-red-50 text-red-600 border border-red-200 shadow-sm hover:bg-red-100 transition-colors"
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
                   <Trash2 className="w-4 h-4" />
-                  Delete Project
+                  <span className='hidden md:block'>Delete Project</span>
                 </motion.button>
               </div>
             </div>
@@ -416,7 +416,7 @@ export default function ProjectDetailsPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mb-6 flex justify-center block sm:hidden"
           >
-            <div className="flex items-center gap-2 p-1 bg-white/60 backdrop-blur rounded-xl border border-white/30 shadow-sm w-fit">
+            <div className="flex items-center gap-2 p-1 bg-white/60 rounded-xl border-2 border-gray-300 shadow-sm w-fit">
               <button
                 onClick={() => handleTabChange('tasks')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'tasks'
@@ -469,7 +469,7 @@ export default function ProjectDetailsPage() {
                   {/* Task Statistics */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <motion.div
-                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
+                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-gray-300"
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
@@ -492,7 +492,7 @@ export default function ProjectDetailsPage() {
                     </motion.div>
 
                     <motion.div
-                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
+                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-gray-300"
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
@@ -522,7 +522,7 @@ export default function ProjectDetailsPage() {
                     </motion.div>
 
                     <motion.div
-                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-white/30"
+                      className="bg-white/60 backdrop-blur rounded-xl p-4 border border-gray-300"
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
                       <div className="flex items-center gap-3">
@@ -840,7 +840,7 @@ export default function ProjectDetailsPage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
-                className="rounded-2xl bg-white/80 backdrop-blur p-6 shadow-lg border border-white/30"
+                className="rounded-2xl bg-white/80 backdrop-blur p-6 shadow-sm border border-gray-300"
               >
                 <SmartScheduler
                   projectId={projectId}

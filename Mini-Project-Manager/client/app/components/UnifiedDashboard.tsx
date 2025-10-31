@@ -131,10 +131,10 @@ export default function UnifiedDashboard() {
         transition={{ duration: 0.45 }}
         className="pt-6 pb-0"
       >
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto px-6">
           <div className="flex items-center mt-5 justify-between">
             <div>
-              <h1 className="text-5xl font-semibold text-zinc-600">
+              <h1 className="md:text-5xl text-2xl font-semibold text-zinc-600">
                 Welcome, {user?.username || "User"}
               </h1>
               <p className="text-sm text-slate-500 pt-2 px-3">
