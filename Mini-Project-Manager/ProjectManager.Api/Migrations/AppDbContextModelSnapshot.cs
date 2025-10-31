@@ -42,7 +42,7 @@ namespace ProjectManager.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManager.Api.Models.TaskItem", b =>
@@ -51,7 +51,7 @@ namespace ProjectManager.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateOnly?>("DueDate")
+                    b.Property<DateTime?>("DueDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsCompleted")
@@ -68,7 +68,7 @@ namespace ProjectManager.Api.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManager.Api.Models.User", b =>
@@ -92,7 +92,7 @@ namespace ProjectManager.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManager.Api.Models.Project", b =>
