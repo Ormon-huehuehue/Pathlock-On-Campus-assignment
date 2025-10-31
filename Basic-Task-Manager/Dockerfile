@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /build
 
 # Copy csproj and restore dependencies (better caching)
-COPY Basic-Task-Manager/backend/*.csproj Basic-Task-Manager/backend/
-RUN dotnet restore "Basic-Task-Manager/backend/TaskManager.csproj"
+COPY backend/*.csproj backend/
+RUN dotnet restore "backend/TaskManager.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/build/Basic-Task-Manager/backend"
+WORKDIR "/build/backend"
 RUN dotnet publish "TaskManager.csproj" -c Release -o /app/publish --no-restore
 
 # Build runtime image
