@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: projectmanager-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Mini-Project-Manager/Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Jwt__Key
+        generateValue: true
+      - key: Cors__AllowedOrigins__0
+        value: https://your-vercel-app.vercel.app
+    healthCheckPath: /health
+    autoDeploy: true
+    branch: main

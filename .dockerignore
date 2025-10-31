@@ -1,0 +1,18 @@
+# Ignore everything except Mini-Project-Manager
+*
+!Mini-Project-Manager/
+
+# But ignore these within Mini-Project-Manager
+Mini-Project-Manager/**/bin/
+Mini-Project-Manager/**/obj/
+Mini-Project-Manager/**/.vs/
+Mini-Project-Manager/**/.vscode/
+Mini-Project-Manager/**/*.user
+Mini-Project-Manager/**/.DS_Store
+Mini-Project-Manager/**/node_modules/
+Mini-Project-Manager/**/.git/
+Mini-Project-Manager/**/Thumbs.db
+
+# Ignore other top-level directories
+Basic-Task-Manager/
+README.md
